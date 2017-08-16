@@ -1,7 +1,8 @@
 """
-Functions used to put a series of strings in natural order
+Sandbox functions used to put a series of strings in natural order
 """
 import re
+from natsort import natsorted, humansorted, ns
 
 def alphanum_key(s):
     """ Turn a string into a list of string and number chunks.
@@ -25,9 +26,12 @@ def test():
         filenames.append(line.strip())
 
     print("Original:", filenames)
-    sort_natural(filenames)
     print("---------------")
-    print("Natural: ", filenames)
     filenames.sort()
-    print("---------------")
     print("Default: ", filenames)
+    print("---------------")
+    sort_natural(filenames)
+    print("Natural: ", filenames)
+    print("---------------")
+    natsorted(filenames, alg=ns.IGNORECASE)
+    print("NatSort: ", filenames)
