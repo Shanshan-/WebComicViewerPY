@@ -1,7 +1,10 @@
 import requests, bs4
 
-def scrape_xkcd():
-    for x in range(32,35):
+""" TODO: Function to get image and write it to file """
+
+""" Function that can be used to specifically scrape xkcd.com """
+def scrape_xkcd(start, stop):
+    for x in range(start,stop):
         # get the website
         url = "http://xkcd.com"
         res = requests.get(url + "/" + str(x) + "/")
@@ -10,7 +13,6 @@ def scrape_xkcd():
         # create beautiful soup object and extract image url and name
         pageSoup = bs4.BeautifulSoup(res.text, "html.parser")
         imgElem = pageSoup.select('#comic img')[0]
-        #print(imgElem.attrs)
         imgUrl = "http:" + imgElem.get('src')
         title = imgElem.get('title')
 
@@ -27,18 +29,28 @@ def scrape_xkcd():
             file.write(chunk)
         file.close()
 
-def gen_scrape(start, stop, starturl, imgsel, titlesel, comicname, addnum, fileform):
+""" Function capable of scraping a range of pages from any website of url format http://<website url>/<comic number>
+    Accepts:
+        start page number
+        stop page number
+        url of the website
+        CSS selector for the comic image
+        CSS selector for comic title
+        desired name of comic for the file
+        whether or not to add the comic page number # TODO: this should be an optional field, and set to true by default
+        desired file format
+"""
+def scrape_range(start, stop, starturl, imgsel, imgpref, titlesel, comicname, addnum, fileform):
     for x in range(start, stop+1):
-        # get the website
+        # get the website and create soup
+        print("Getting %s #%d" % (comicname, x))
         res = requests.get(starturl + str(x))
         res.raise_for_status()
-
-        # create beautiful soup object and extract image url and name
         pageSoup = bs4.BeautifulSoup(res.text, "html.parser")
+
+        # extract image url and name
         imgElem = pageSoup.select(imgsel)[0]
-        imgUrl = imgElem.get('src')
-        if imgUrl.find("http:") == -1:
-            imgUrl = "http:" + imgUrl
+        imgUrl = imgpref + imgElem.get('src')
         title = imgElem.get(titlesel)
 
         # scrape the image
@@ -46,7 +58,6 @@ def gen_scrape(start, stop, starturl, imgsel, titlesel, comicname, addnum, filef
         res2.raise_for_status()
 
         # write img to file
-        print("Writing %s #%d" % (comicname, x))
         for char in "\/?:*<>\"|":
             title = title.replace(char, "_")
         if addnum:
@@ -57,7 +68,56 @@ def gen_scrape(start, stop, starturl, imgsel, titlesel, comicname, addnum, filef
             file.write(chunk)
         file.close()
 
-gen_scrape(1, 5, "http://xkcd.com/", "#comic img", "title", "xkcd", True, "jpg")
-gen_scrape(1, 5, "http://codegamenight.thecomicseries.com/comics/", "#comicimage", "alt", "Code Game Night", False, "png")
-gen_scrape(1, 5, "http://crystalgms.thecomicseries.com/comics/", "#comicimage", "alt", "Crystal GMs", True, "jpg")
+# Function that takes first page of comic, and scrapes until next page url == current url, and saves all
+def scrape_all(starturl, imgsel, imgpref, titlesel, comicname, addnum, fileform, nextsel, nextpref):
+    x = 1
+    cururl = starturl
+    while True:
+        # get the website and create soup
+        print("Getting %s #%d" % (comicname, x))
+        res = requests.get(cururl)
+        res.raise_for_status()
+        pageSoup = bs4.BeautifulSoup(res.text, "html.parser")
 
+        # extract image url and name
+        imgElem = pageSoup.select(imgsel)[0]
+        imgUrl = imgpref + imgElem.get('src')
+        title = imgElem.get(titlesel)
+
+        # scrape the image
+        res2 = requests.get(imgUrl)
+        res2.raise_for_status()
+
+        # write img to file
+        for char in "\/?:*<>\"|":
+            title = title.replace(char, "_")
+        if addnum:
+            file = open("./img/%s #%d - %s.%s" % (comicname, x, title, fileform), 'wb')
+        else:
+            file = open("./img/%s - %s.%s" % (comicname, title, fileform), 'wb')
+        for chunk in res2.iter_content(100000):
+            file.write(chunk)
+        file.close()
+
+        # get next page and set cururl
+        if not pageSoup.select(nextsel):
+            break
+        nexturl = nextpref + pageSoup.select(nextsel)[0].get("href")
+        if nexturl == cururl:
+            break
+        cururl = nexturl
+        x = x + 1
+
+# scrape_xkcd()
+
+# Testing for gen_scrape
+xkcd = [1, 5, "http://xkcd.com/", "#comic img", "http:", "title", "xkcd", True, "jpg"]
+lyoko = [1, 5, "http://codegamenight.thecomicseries.com/comics/", "#comicimage", "", "alt", "Code Game Night", False, "png"]
+gems = [1, 5, "http://crystalgms.thecomicseries.com/comics/", "#comicimage", "", "alt", "Crystal GMs", True, "jpg"]
+#scrape_range(*xkcd)
+#scrape_range(*lyoko)
+#scrape_range(*gems)
+
+# Testing for scrape all
+#scrape_all("http://codegamenight.thecomicseries.com/comics/90/", "#comicimage", "", "alt", "Code Game Night", False, "png", 'a[rel="next"]', "http://codegamenight.thecomicseries.com")
+#scrape_all("http://www.misfile.com/?date=2017-08-05", ".comic img", "http://www.misfile.com/", "alt", "Misfile", True, "jpg", ".comic a", "")
