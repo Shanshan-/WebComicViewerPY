@@ -1,0 +1,14 @@
+abc.txt
+bca.txt
+cab.txt
+1
+2
+3
+10
+11
+12
+!@#$%^&
+!@#$%12345sdfgh!@#1234
+ABC.txt
+BCA.txt
+@#$%^.txt
