@@ -35,6 +35,7 @@ def scrape_xkcd(start, stop):
         stop page number
         url of the website
         CSS selector for the comic image
+        any prefixes that need to be added to the img url
         CSS selector for comic title
         desired name of comic for the file
         whether or not to add the comic page number # TODO: this should be an optional field, and set to true by default
@@ -68,7 +69,18 @@ def scrape_range(start, stop, starturl, imgsel, imgpref, titlesel, comicname, ad
             file.write(chunk)
         file.close()
 
-# Function that takes first page of comic, and scrapes until next page url == current url, and saves all
+""" Function that takes first page of comic, and scrapes until next page url == current url, and saves all
+    Accepts:
+        url of the first page (or starting page)
+        CSS selector for the comic image
+        any prefixes that need to be added to the img url
+        CSS selector for comic title
+        desired name of comic for the file
+        whether or not to add the comic page number # TODO: this should be an optional field, and set to true by default
+        desired file format
+        CSS selector for the next page url
+        any prefixes that need to be added to the next page url
+"""
 def scrape_all(starturl, imgsel, imgpref, titlesel, comicname, addnum, fileform, nextsel, nextpref):
     x = 1
     cururl = starturl
@@ -108,16 +120,17 @@ def scrape_all(starturl, imgsel, imgpref, titlesel, comicname, addnum, fileform,
         cururl = nexturl
         x = x + 1
 
+"""Tests for above functions"""
 # scrape_xkcd()
 
 # Testing for gen_scrape
-xkcd = [1, 5, "http://xkcd.com/", "#comic img", "http:", "title", "xkcd", True, "jpg"]
-lyoko = [1, 5, "http://codegamenight.thecomicseries.com/comics/", "#comicimage", "", "alt", "Code Game Night", False, "png"]
-gems = [1, 5, "http://crystalgms.thecomicseries.com/comics/", "#comicimage", "", "alt", "Crystal GMs", True, "jpg"]
+# xkcd = [1, 5, "http://xkcd.com/", "#comic img", "http:", "title", "xkcd", True, "jpg"]
+# lyoko = [1, 5, "http://codegamenight.thecomicseries.com/comics/", "#comicimage", "", "alt", "Code Game Night", False, "png"]
+# gems = [1, 5, "http://crystalgms.thecomicseries.com/comics/", "#comicimage", "", "alt", "Crystal GMs", True, "jpg"]
 #scrape_range(*xkcd)
 #scrape_range(*lyoko)
 #scrape_range(*gems)
 
-# Testing for scrape all
-#scrape_all("http://codegamenight.thecomicseries.com/comics/90/", "#comicimage", "", "alt", "Code Game Night", False, "png", 'a[rel="next"]', "http://codegamenight.thecomicseries.com")
+# Testing for scrape_all
+#scrape_all("http://codegamenight.thecomicseries.com/comics/first/", "#comicimage", "", "alt", "Code Game Night", False, "png", 'a[rel="next"]', "http://codegamenight.thecomicseries.com")
 #scrape_all("http://www.misfile.com/?date=2017-08-05", ".comic img", "http://www.misfile.com/", "alt", "Misfile", True, "jpg", ".comic a", "")
