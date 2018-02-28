@@ -1,4 +1,5 @@
 import os
+from PIL import Image
 from nat_sorter import sort_natural
 
 class entry:
@@ -9,28 +10,29 @@ class entry:
         self.page = page
         self.index = str(chapter) + "." + str(page)
 
-cmcpath = "./img"
-filenames = dict()
-nested = False
-cnum = 0
-pnum = 1
-for path, subdirs, files in os.walk(cmcpath):
-    #case 1: files are all in single folder (aka no subdirs)
-    if not subdirs:
-        cnum += 1
-        sort_natural(files)
-        for file in files:
-            curpath = path + "/" + file
-            tmp = entry(curpath, file, cnum, pnum)
-            filenames[tmp.index] = tmp
-            pnum += 1
-        pnum = 1
+def loadFiles(cmcpath):
+    filenames = dict()
+    cnum = 0
+    pnum = 1
+    for path, subdirs, files in os.walk(cmcpath):
+        sort_natural(subdirs)
+        if not subdirs:
+            cnum += 1
+            sort_natural(files)
+            for file in files:
+                curpath = path + "/" + file
+                tmp = entry(curpath, file, cnum, pnum)
+                filenames[tmp.index] = tmp
+                pnum += 1
+            pnum = 1
+        #TODO: find a way to filter out unwanted folders and files
+        #TODO: account for pages with folders
+    return filenames
 
-    #case 2: files are all divided by chapters (only subdirs)
-    elif not files:
-        nested = True
+path = "./img"
+#path = "D:\Webcomics\The Seven Deadly Sins"
+cmcfiles = loadFiles(path)
+for key, value in cmcfiles.items():
+    print(str(value.index) + ", " + value.name)
 
-    #case 3: hybrid of two
-
-for key in filenames:
-    print(str(filenames[key].index) + ", " + filenames[key].name)
+Image.open(cmcfiles["1.1"].path).show()
