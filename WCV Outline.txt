@@ -1,0 +1,44 @@
+WCV Outline and parts needed:
+- Scraper
+	- basics done, but needs to be dynamic
+	- ideally take in at least the following (or a subset)
+		- start page
+		- end page
+		- content location
+		- next / prev page location
+			- some require for prefixes to be added to find
+		- filename prefix (account for number)
+		- title location
+		- dest file format
+		* location refers to div, class, id, or tag
+	- for now, also add an admin access to directly call functions
+	- scrape first three pages as test, and display before scraping all requested
+	(-) options for metadata info
+- Loader
+	- current does load desired filenames, but to single list
+		- edit: try checking the 307 grading files for this code snippet
+	- add checks for filename prefixes, file types, num files, etc.
+	- structure options:
+		- single list: less initial overhead, but a lot of filtering later
+		- list of lists: allows for division by chapter or other index, but not even
+		- dictionary: decent mix of two above, but must develop good index system
+			- probably chapter.page, or global page
+	(-) loading metadata from designated file
+- Metadata management
+	- chapter demarcations
+	- chapter titles
+	- file structure (eg. nested folders, filename notations, etc.)
+	- bookmarks
+	- num files
+- Features
+	- zoom in / zoom out
+	- full screen
+	- view one, all, chapter
+	- jump to page, chapter
+	- bookmarks
+	- background color (use set list)
+	- favorites list
+- Viewer GUI
+	- must account for features
+	- Scraper GUI: simple (series of) dialog box(es) to prompt for scraper inputs
+	- Loader GUI: dialog box with options to chose what to load
