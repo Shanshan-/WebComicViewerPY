@@ -29,10 +29,11 @@ def loadFiles(cmcpath):
         #TODO: account for pages with folders
     return filenames
 
-path = "./img"
-#path = "D:\Webcomics\The Seven Deadly Sins"
-cmcfiles = loadFiles(path)
-for key, value in cmcfiles.items():
-    print(str(value.index) + ", " + value.name)
+if __name__ == "__main__":
+    path = "./img"
+    #path = "D:\Webcomics\The Seven Deadly Sins"
+    cmcfiles = loadFiles(path)
+    for key, value in cmcfiles.items():
+        print(str(value.index) + ", " + value.name)
 
-Image.open(cmcfiles["1.1"].path).show()
+    Image.open(cmcfiles["1.1"].path).show()
