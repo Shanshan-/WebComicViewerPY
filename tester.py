@@ -29,12 +29,60 @@ class MainWindow(Frame):
     def say_hi(self):
         print("Window says hi!")
 
+class MainWindow2:
+    counter = 0
+    def __init__(self, master):
+        self.mainFrame = Frame(master)
+        Button(self.mainFrame, text="HI", command=self.say_hi).pack(side=RIGHT)
+        Button(self.mainFrame, text="NEW", command=self.create_window).pack(side=LEFT)
+        Button(self.mainFrame, text="MAIN", command=lambda:main_func()).pack(side=BOTTOM)
+        Button(self.mainFrame, text="LF", command=lambda:print(loadFiles("./img/extras"))).pack(side=TOP)
+        self.mainFrame.pack(padx=20, ipady=5, pady=10)
+
+    def create_window(self):
+        self.counter += 1
+        t = Toplevel(self.mainFrame)
+        t.grab_set() #deactivate other window
+        t.wm_title("Window #%s" % self.counter)
+        f = Frame(t) #for padding purposes
+        l = Label(f, text="This is window #%s" % self.counter).pack(side=TOP)
+        Button(f, text="QUIT", fg="red", command=t.destroy).pack(side=BOTTOM)
+            #create a button to close top level
+        f.pack(side="top", fill="both", expand=True, padx=50, pady=50)
+
+    def say_hi(self):
+        print("Window says hi!")
+
 if __name__ == "__main__":
     root = Tk()
     root.wm_title("Base window")
     w = Label(root, text="Hello world!\nThis is a test!")
     w.pack(padx=100, pady=20) # fit this widget to its contents and become visible
+    test1 = True
 
-    main = MainWindow(root)
-    main.pack(side="top", fill="both", expand=True)
-    root.mainloop()
+    if test1:
+        main = MainWindow(root)
+        main.pack(side="top", fill="both", expand=True)
+        root.mainloop()
+    else:
+        main = MainWindow2(root)
+        root.mainloop()
+
+"""
+class App:
+    def __init__(self, master):
+        frame = Frame(master)
+        frame.pack(padx=100, pady=20)
+        self.counter = 0
+
+        self.button = Button(frame, text="QUIT", fg="red", command=frame.quit)
+        self.button.pack(side=LEFT) # item will be placed as far left as possible; default is TOP
+
+        Button(frame, text="Hello", command=self.say_hi).pack(side=LEFT)
+
+    def say_hi(self):
+        print("Window says hi!")
+root = Tk()
+root.wm_title("New Window")
+app = App(root)
+"""
