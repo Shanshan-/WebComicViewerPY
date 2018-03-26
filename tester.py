@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import Tk, font
 from main import main_func
 from loader import loadFiles
 
@@ -13,6 +14,7 @@ class MainWindow(Frame):
         Button(self, text="NEW", command=self.create_window).pack(side=LEFT)
         Button(self, text="MAIN", command=lambda:main_func()).pack(side=BOTTOM)
         Button(self, text="LF", command=lambda:print(loadFiles("./img/extras"))).pack(side=TOP)
+        Button(self, text="Font", command=self.font_window).pack(side=BOTTOM)
         self.pack(padx=20, ipady=5, pady=10)
 
     def create_window(self):
@@ -25,6 +27,36 @@ class MainWindow(Frame):
         Button(f, text="QUIT", fg="red", command=t.destroy).pack(side=BOTTOM)
             #create a button to close top level
         f.pack(side="top", fill="both", expand=True, padx=50, pady=50)
+
+    def font_window(self):
+        """
+            root = Tk()
+            fonts=list(font.families())
+            fonts.sort()
+            x = 0
+            y = 0
+            num = 36
+
+            for item in fonts:
+                w = Label(root, text=item, font=(item, 9))
+                w.grid(row=x%num, column = int(x/num))
+                x += 1
+                y += 1
+
+            root.mainloop()
+        """
+        t = Toplevel(self)
+        fonts=list(font.families())
+        fonts.sort()
+        x = 0
+        y = 0
+        num = 36
+        for item in fonts:
+            txt = Label(t, text=item, font=(item, 9))
+            txt.grid(row=x%num, column=int(x/num))
+            x += 1
+            y += 1
+
 
     def say_hi(self):
         print("Window says hi!")
