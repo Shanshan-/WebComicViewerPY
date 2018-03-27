@@ -2,6 +2,7 @@
 from tkinter import *
 from tkinter import ttk
 from scraper import *
+from widgets import *
 
 class Viewer:
     def __init__(self, master):
@@ -83,7 +84,7 @@ class Scraper:
         Label(self.frame, text="Next Page\nSelector").grid(row=3, column=0)
         Radiobutton(self.frame, text="class(.)", variable=self.nextPageID, value=".", tristatevalue="x").grid(row=3, column=1)
         Radiobutton(self.frame, text="id(#)", variable=self.nextPageID, value="#", tristatevalue="x").grid(row=3, column=2)
-        Radiobutton(self.frame, text="div", variable=self.nextPageID, value="", tristatevalue="x").grid(row=3, column=3)
+        Radiobutton(self.frame, text="other", variable=self.nextPageID, value="", tristatevalue="x").grid(row=3, column=3)
         Entry(self.frame, textvariable=self.nextPage).grid(row=4, column=1, columnspan=3)
         Checkbutton(self.frame, text="URL Prefix:", variable=self.nextPagePreB).grid(row=5, column=1)
         Entry(self.frame, textvariable=self.nextPagePre).grid(row=5, column=2, columnspan=2)
@@ -91,7 +92,7 @@ class Scraper:
         Label(self.frame, text="Content\nSelector").grid(row=6, column=0)
         Radiobutton(self.frame, text="class(.)", variable=self.contentID, value=".", tristatevalue="x").grid(row=6, column=1)
         Radiobutton(self.frame, text="id(#)", variable=self.contentID, value="#", tristatevalue="x").grid(row=6, column=2)
-        Radiobutton(self.frame, text="div", variable=self.contentID, value="", tristatevalue="x").grid(row=6, column=3)
+        Radiobutton(self.frame, text="other", variable=self.contentID, value="", tristatevalue="x").grid(row=6, column=3)
         Entry(self.frame, textvariable=self.content).grid(row=7, column=1, columnspan=3)
         Checkbutton(self.frame, text="URL Prefix:", variable=self.contentPreB).grid(row=8, column=1)
         Entry(self.frame, textvariable=self.contentPre).grid(row=8, column=2, columnspan=2)
@@ -102,7 +103,7 @@ class Scraper:
         Label(self.frame, text="Page Title\nSelector").grid(row=1, column=5)
         Radiobutton(self.frame, text="class(.)", variable=self.titleLocID, value=".", tristatevalue="x").grid(row=1, column=6)
         Radiobutton(self.frame, text="id(#)", variable=self.titleLocID, value="#", tristatevalue="x").grid(row=1, column=7)
-        Radiobutton(self.frame, text="div", variable=self.titleLocID, value="", tristatevalue="x").grid(row=1, column=8)
+        Radiobutton(self.frame, text="other", variable=self.titleLocID, value="", tristatevalue="x").grid(row=1, column=8)
         Entry(self.frame, textvariable=self.titleLoc).grid(row=2, column=6, columnspan=3)
 
         Label(self.frame, text="Filename").grid(row=3, column=5)
@@ -142,19 +143,14 @@ class Scraper:
         args.append("") if not self.nextPagePreB else args.append(self.nextPagePre.get())
 
         # Try to scrape, and provide feedback
-        dialog = Toplevel(self.frame)
         try:
             scrape_all(*args)
             feedback = "Scrape Successful"
             cf = self.frame
         except Exception as e:
             feedback = "Scrape Failed:\n%s" % e
-            cf = dialog
-        dialog.grab_set()
-        f = Frame(dialog)
-        Label(f, text=feedback).pack()
-        Button(f, text="Close", command=cf.destroy).pack()
-        f.pack(padx=10, pady=10)
+            cf = None
+        Dialog(self.frame, feedback, dFrame=cf, title="Scrape Results", btnTxt="Close")
 
 if __name__ == "__main__":
     # create the root window which will hold all objects
