@@ -71,10 +71,6 @@ class Scraper:
 
         # populate the window
         self.create_form()
-        cancel = Button(self.frame, text="Cancel", command=self.frame.destroy)
-        cancel.grid(row=10,column=5, padx=10, pady=10, sticky="we")
-        scrape = Button(self.frame, text="Scrape", command=self.start_scrape)
-        scrape.grid(row=10, column=3, padx=10, pady=10, sticky="we")
 
     def create_form(self):
         #TODO: figure out why radio buttons are buggy
@@ -84,29 +80,29 @@ class Scraper:
         Label(self.frame, text="End URL").grid(row=2, column=0)
         Entry(self.frame, textvariable=self.endURL).grid(row=2, column=1, columnspan=3)
 
-        Label(self.frame, text="Next Page").grid(row=3, column=0)
-        Radiobutton(self.frame, text="div", variable=self.nextPageID, value="", tristatevalue="x").grid(row=3, column=1)
-        Radiobutton(self.frame, text="class(.)", variable=self.nextPageID, value=".", tristatevalue="x").grid(row=3, column=2)
-        Radiobutton(self.frame, text="id(#)", variable=self.nextPageID, value="#", tristatevalue="x").grid(row=3, column=3)
+        Label(self.frame, text="Next Page\nSelector").grid(row=3, column=0)
+        Radiobutton(self.frame, text="class(.)", variable=self.nextPageID, value=".", tristatevalue="x").grid(row=3, column=1)
+        Radiobutton(self.frame, text="id(#)", variable=self.nextPageID, value="#", tristatevalue="x").grid(row=3, column=2)
+        Radiobutton(self.frame, text="div", variable=self.nextPageID, value="", tristatevalue="x").grid(row=3, column=3)
         Entry(self.frame, textvariable=self.nextPage).grid(row=4, column=1, columnspan=3)
-        Checkbutton(self.frame, text="Prefix:", variable=self.nextPagePreB).grid(row=5, column=1)
+        Checkbutton(self.frame, text="URL Prefix:", variable=self.nextPagePreB).grid(row=5, column=1)
         Entry(self.frame, textvariable=self.nextPagePre).grid(row=5, column=2, columnspan=2)
 
-        Label(self.frame, text="Content").grid(row=6, column=0)
-        Radiobutton(self.frame, text="div", variable=self.contentID, value="", tristatevalue="x").grid(row=6, column=1)
-        Radiobutton(self.frame, text="class(.)", variable=self.contentID, value=".", tristatevalue="x").grid(row=6, column=2)
-        Radiobutton(self.frame, text="id(#)", variable=self.contentID, value="#", tristatevalue="x").grid(row=6, column=3)
+        Label(self.frame, text="Content\nSelector").grid(row=6, column=0)
+        Radiobutton(self.frame, text="class(.)", variable=self.contentID, value=".", tristatevalue="x").grid(row=6, column=1)
+        Radiobutton(self.frame, text="id(#)", variable=self.contentID, value="#", tristatevalue="x").grid(row=6, column=2)
+        Radiobutton(self.frame, text="div", variable=self.contentID, value="", tristatevalue="x").grid(row=6, column=3)
         Entry(self.frame, textvariable=self.content).grid(row=7, column=1, columnspan=3)
-        Checkbutton(self.frame, text="Prefix:", variable=self.contentPreB).grid(row=8, column=1)
+        Checkbutton(self.frame, text="URL Prefix:", variable=self.contentPreB).grid(row=8, column=1)
         Entry(self.frame, textvariable=self.contentPre).grid(row=8, column=2, columnspan=2)
         Checkbutton(self.frame, text="Multiple Pages", variable=self.multPages, state="disable")\
             .grid(row=9, column=1, columnspan=3)
 
         # saving-related fields
-        Label(self.frame, text="Title Location").grid(row=1, column=5)
-        Radiobutton(self.frame, text="div", variable=self.titleLocID, value="", tristatevalue="x").grid(row=1, column=6)
-        Radiobutton(self.frame, text="class(.)", variable=self.titleLocID, value=".", tristatevalue="x").grid(row=1, column=7)
-        Radiobutton(self.frame, text="id(#)", variable=self.titleLocID, value="#", tristatevalue="x").grid(row=1, column=8)
+        Label(self.frame, text="Page Title\nSelector").grid(row=1, column=5)
+        Radiobutton(self.frame, text="class(.)", variable=self.titleLocID, value=".", tristatevalue="x").grid(row=1, column=6)
+        Radiobutton(self.frame, text="id(#)", variable=self.titleLocID, value="#", tristatevalue="x").grid(row=1, column=7)
+        Radiobutton(self.frame, text="div", variable=self.titleLocID, value="", tristatevalue="x").grid(row=1, column=8)
         Entry(self.frame, textvariable=self.titleLoc).grid(row=2, column=6, columnspan=3)
 
         Label(self.frame, text="Filename").grid(row=3, column=5)
@@ -122,8 +118,13 @@ class Scraper:
             child.grid_configure(padx=8, pady=2, sticky="we")
 
         # other fields and elements
-        Label(self.frame, text="Scraper Input", font=('Cooper Black', 24)).grid(row=0, columnspan=9, padx=10, pady=10, sticky="we")
+        title = Label(self.frame, text="Scraper Input", font=('Cooper Black', 24))
+        title.grid(row=0, columnspan=9, padx=10, pady=10, sticky="we")
         ttk.Separator(self.frame, orient=VERTICAL).grid(row=1, column=4, rowspan=9, sticky="ns")
+        cancel = Button(self.frame, text="Cancel", command=self.frame.destroy)
+        cancel.grid(row=10,column=5, padx=10, pady=10, sticky="we")
+        scrape = Button(self.frame, text="Scrape", command=self.start_scrape)
+        scrape.grid(row=10, column=3, padx=10, pady=10, sticky="we")
 
     def start_scrape(self):
         args = []  #starturl, imgsel, imgpref, titlesel, comicname, addnum, fileform, nextsel, nextpref
