@@ -67,7 +67,7 @@ class Scraper:
         self.titleLocID = StringVar(value="")
         self.filename = StringVar(value="")
         self.filenameNum = BooleanVar(value=FALSE)
-        self.fileFormat = StringVar(value=".jpg")
+        self.fileFormat = StringVar(value="jpg")
 
         # populate the window
         self.create_form()
@@ -110,8 +110,10 @@ class Scraper:
         Entry(self.frame, textvariable=self.filename).grid(row=3, column=7, columnspan=2)
 
         Label(self.frame, text="File Format").grid(row=4, column=5)
-        Radiobutton(self.frame, text=".jpg", variable=self.fileFormat, value=".jpg").grid(row=4, column=6)
-        Radiobutton(self.frame, text=".png", variable=self.fileFormat, value=".png").grid(row=4, column=7)
+        Radiobutton(self.frame, text=".jpg", variable=self.fileFormat, value="jpg").grid(row=4, column=6)
+        Radiobutton(self.frame, text=".png", variable=self.fileFormat, value="png").grid(row=4, column=7)
+
+        #TODO: save destination
 
         # set global padding for above items
         for child in self.frame.winfo_children():
