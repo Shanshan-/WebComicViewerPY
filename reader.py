@@ -7,14 +7,26 @@ from widgets import *
 class Viewer:
     def __init__(self, master):
         self.menu, self.recent_menu = self.gen_menu(master)
-        self.frame = Frame(master)
-        self.frame.pack() # to make the viewer visible
+        self.cframe = Frame(master)
+        self.eframe = Frame(master)
+        self.isEmpty = True
 
-        #create image section
-        #TODO: look up tkinter Scrollbar
-        Label(self.frame, text="Images to go here later", fg="gray").pack()
-        Button(self.frame, text="QUIT", command=master.destroy).pack()
-        Button(self.frame, text="Scrape", command=self.open_scrape).pack()
+        #populate and display empty frame
+        Label(self.eframe, text="No images to display now", fg="gray").pack()
+        Button(self.eframe, text="QUIT", command=master.destroy).pack()
+        Button(self.eframe, text="Scrape", command=self.open_scrape).pack()
+        Button(self.eframe, text="Switch", command=self.switch_frame).pack()
+        self.eframe.pack()
+
+        #populate canvas frame
+        self.canvas = Canvas(self.cframe, confine=False, scrollregion=(0, 0, swidth, sheight))
+        self.canvas.config(width=swidth/2, height=sheight/2)
+        hbar = Scrollbar(self.cframe, orient=HORIZONTAL, command=self.canvas.xview)
+        hbar.pack(side=BOTTOM, fill=X)
+        vbar = Scrollbar(self.cframe, orient=VERTICAL, command=self.canvas.yview)
+        vbar.pack(side=RIGHT, fill=Y)
+        self.canvas.config(xscrollcommand=hbar.set, yscrollcommand=vbar.set)
+        self.canvas.pack(side=LEFT, expand=True, fill=BOTH)
 
     # Generate the menu to go on top, and link as needed
     def gen_menu(self, rootFrame):
@@ -33,6 +45,7 @@ class Viewer:
 
         # Viewer Options
         viewOpts = Menu(menuBar, tearoff=0)
+        viewOpts.add_command(label="Switch", command=self.switch_frame)
         viewOpts.add_command(label="<to be made>", command=NONE, state="disabled")
         viewOpts.add_command(label="Quit", command=rootFrame.destroy)
 
@@ -42,8 +55,18 @@ class Viewer:
         return menuBar, recentFiles
 
     def open_scrape(self):
-        Scraper(self.frame)
+        Scraper(self.cframe)
         #TODO: implement taking results from pop-up and implementing them
+
+    def switch_frame(self):
+        self.isEmpty = not self.isEmpty
+        if not self.isEmpty:
+            self.eframe.pack_forget()
+            self.cframe.pack()
+        else:
+            self.cframe.pack_forget()
+            self.eframe.pack()
+
 
 if __name__ == "__main__":
     # create the root window which will hold all objects
