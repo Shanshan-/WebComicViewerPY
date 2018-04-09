@@ -1,8 +1,36 @@
 import requests, bs4
 
-""" TODO: Function to get image and write it to file """
+class ScrapeSettings:
+    def __init__(self):
+        self.startnum = 0
+        self.endnum = 0
+        self.starturl = ""
+        self.imagesel = ""
+        self.imagepref = ""
+        self.titlesel = ""
+        self.comicname = ""
+        self.addnum = False
+        self.fileform = ""
+        self.nextsel = ""
+        self.nextpref = ""
 
-""" Function that can be used to specifically scrape xkcd.com """
+    def setRange(self, start, stop):
+        self.startnum = start
+        self.endnum = stop
+    def setImage(self, selector, prefix):
+        self.imagesel = selector
+        self.imagepref = prefix
+    def setTitle(self, selector):
+        self.titleSel = selector
+    def setFile(self, filenameprefix, addnum, format):
+        self.comicname = filenameprefix
+        self.addnum = addnum
+        self.fileform = format
+    def setNext(self, selector, prefix):
+        self.nextsel = selector
+        self.nextpref = prefix
+
+""" Test function that can be used to specifically scrape xkcd.com """
 def scrape_xkcd(start, stop):
     for x in range(start,stop):
         # get the website
