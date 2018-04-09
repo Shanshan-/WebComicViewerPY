@@ -11,14 +11,14 @@ class Viewer:
         self.eframe = Frame(master)
         self.isEmpty = True
 
-        #populate and display empty frame
+        #generate and display empty frame
         Label(self.eframe, text="No images to display now", fg="gray").pack()
         Button(self.eframe, text="QUIT", command=master.destroy).pack()
         Button(self.eframe, text="Scrape", command=self.open_scrape).pack()
         Button(self.eframe, text="Switch", command=self.switch_frame).pack()
         self.eframe.pack()
 
-        #populate canvas frame
+        #generate canvas frame
         self.canvas = Canvas(self.cframe, confine=False, scrollregion=(0, 0, swidth, sheight))
         self.canvas.config(width=swidth/2, height=sheight/2)
         hbar = Scrollbar(self.cframe, orient=HORIZONTAL, command=self.canvas.xview)
@@ -30,7 +30,6 @@ class Viewer:
 
     # Generate the menu to go on top, and link as needed
     def gen_menu(self, rootFrame):
-        #ETC: look up tkinter Menu, MenuButton
         menuBar = Menu(rootFrame)
         rootFrame.config(menu=menuBar)
 
@@ -41,11 +40,11 @@ class Viewer:
         fileOpts.add_separator()
         fileOpts.add_cascade(label="Open Recent", menu=recentFiles)
         recentFiles.add_command(label="<no recent files>", state="disabled")
-        fileOpts.add_command(label="Open New", command=NONE)
+        fileOpts.add_command(label="Open Other", command=self.open_comic)
 
         # Viewer Options
         viewOpts = Menu(menuBar, tearoff=0)
-        viewOpts.add_command(label="Switch", command=self.switch_frame)
+        viewOpts.add_command(label="Switch Frames", command=self.switch_frame)
         viewOpts.add_command(label="<to be made>", command=NONE, state="disabled")
         viewOpts.add_command(label="Quit", command=rootFrame.destroy)
 
@@ -67,6 +66,8 @@ class Viewer:
             self.cframe.pack_forget()
             self.eframe.pack()
 
+    def open_comic(self):
+        print("Opening new comic")
 
 if __name__ == "__main__":
     # create the root window which will hold all objects
