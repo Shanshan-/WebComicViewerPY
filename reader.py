@@ -15,6 +15,10 @@ class Viewer:
         self.isEmpty = True
 
         #generate and display empty frame
+        photo = ImageTk.PhotoImage(Image.open("img/xkcd #3 - Hello, island.jpg"))
+        l = Label(self.eframe, image=photo)
+        l.image = photo # needed to prevent garbage collection
+        l.pack()
         Label(self.eframe, text="No images to display now", fg="gray").pack()
         Button(self.eframe, text="QUIT", command=master.destroy).pack()
         Button(self.eframe, text="Scrape", command=self.open_scrape).pack()
@@ -23,14 +27,16 @@ class Viewer:
         self.eframe.pack()
 
         #generate canvas frame
-        self.canvas = Canvas(self.cframe, confine=False, scrollregion=(0, 0, swidth, sheight))
-        self.canvas.config(width=swidth/2, height=sheight/2)
-        hbar = Scrollbar(self.cframe, orient=HORIZONTAL, command=self.canvas.xview)
+        self.scroll_canvas = Canvas(self.cframe, width=swidth, height=sheight)
+        hbar = Scrollbar(self.cframe, orient=HORIZONTAL, command=self.scroll_canvas.xview)
         hbar.pack(side=BOTTOM, fill=X)
-        vbar = Scrollbar(self.cframe, orient=VERTICAL, command=self.canvas.yview)
+        vbar = Scrollbar(self.cframe, orient=VERTICAL, command=self.scroll_canvas.yview)
         vbar.pack(side=RIGHT, fill=Y)
-        self.canvas.config(xscrollcommand=hbar.set, yscrollcommand=vbar.set)
-        self.canvas.pack(side=LEFT, expand=True, fill=BOTH)
+        self.scroll_canvas.config(xscrollcommand=hbar.set, yscrollcommand=vbar.set)
+
+        self.scroll_canvas.pack(side=TOP, expand=True, fill=BOTH)
+        self.canvas = Frame(self.scroll_canvas)
+        self.scroll_canvas.create_window((0,0), window=self.canvas, anchor="nw")
 
     # Generate the menu to go on top, and link as needed
     def gen_menu(self, rootFrame):
@@ -71,26 +77,32 @@ class Viewer:
             self.eframe.pack()
 
     def open_comic(self):
+        #clear all items currently in canvas
+        for each in self.canvas.winfo_children():
+            each.pack_forget()
+
         #open dialog to let user choose a directory, and use loader to load
         prompt = "Please select a directory"
-        directory = filedialog.askdirectory(parent=self.eframe, initialdir="./img/extras", title=prompt)
+        directory = filedialog.askdirectory(parent=self.eframe, initialdir="./img", title=prompt)
         files = loadFiles(directory)
         print("Displaying %s" % directory)
 
         #display in canvas
-        # filename = PhotoImage(file = "./img/xkcd #3 - Hello, island.jpg")
-        # image = self.canvas.create_image(50, 50, anchor=NE, image=filename)
         for key, value in files.items():
             page = ImageTk.PhotoImage(Image.open(value.path))
-            self.canvas.create_image(50, 50, anchor=N, image=page)
-        self.switch_frame()
+            l = Label(self.canvas, image=page)
+            l.image = page # needed to prevent garbage collection
+            l.pack()
+        self.scroll_canvas.config(scrollregion=self.scroll_canvas.bbox("all"))
+        if self.isEmpty:
+            self.switch_frame()
 
 if __name__ == "__main__":
     # create the root window which will hold all objects
     root = Tk()
-    sheight = root.winfo_screenheight()
-    swidth = root.winfo_screenwidth()
-    root.geometry('%sx%s' % (int(swidth/2), int(sheight/2)))
+    sheight = int(root.winfo_screenheight() * 0.7)
+    swidth = int(root.winfo_screenwidth() * 0.7)
+    root.geometry('%sx%s' % (swidth, sheight))
     root.wm_title("WCV Reader")
     #genMenu(root)
     app = Viewer(root)
