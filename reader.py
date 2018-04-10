@@ -1,8 +1,11 @@
 # using guide from http://effbot.org/tkinterbook/tkinter-classes.htm
 from tkinter import *
 from tkinter import ttk
+from tkinter import filedialog
 from scraper import *
 from widgets import *
+from loader import loadFiles
+from PIL import Image, ImageTk
 
 class Viewer:
     def __init__(self, master):
@@ -16,6 +19,7 @@ class Viewer:
         Button(self.eframe, text="QUIT", command=master.destroy).pack()
         Button(self.eframe, text="Scrape", command=self.open_scrape).pack()
         Button(self.eframe, text="Switch", command=self.switch_frame).pack()
+        Button(self.eframe, text="Open", command=self.open_comic).pack()
         self.eframe.pack()
 
         #generate canvas frame
@@ -67,7 +71,19 @@ class Viewer:
             self.eframe.pack()
 
     def open_comic(self):
-        print("Opening new comic")
+        #open dialog to let user choose a directory, and use loader to load
+        prompt = "Please select a directory"
+        directory = filedialog.askdirectory(parent=self.eframe, initialdir="./img/extras", title=prompt)
+        files = loadFiles(directory)
+        print("Displaying %s" % directory)
+
+        #display in canvas
+        # filename = PhotoImage(file = "./img/xkcd #3 - Hello, island.jpg")
+        # image = self.canvas.create_image(50, 50, anchor=NE, image=filename)
+        for key, value in files.items():
+            page = ImageTk.PhotoImage(Image.open(value.path))
+            self.canvas.create_image(50, 50, anchor=N, image=page)
+        self.switch_frame()
 
 if __name__ == "__main__":
     # create the root window which will hold all objects
@@ -83,5 +99,5 @@ if __name__ == "__main__":
     root.mainloop()
     try:
         root.destroy()
-    except:
-        print("")
+    except Exception as e:
+        print("Error occured:%s" % e)
