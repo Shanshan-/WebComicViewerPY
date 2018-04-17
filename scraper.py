@@ -1,6 +1,9 @@
 import requests, bs4
 from tkinter import *
 from tkinter import ttk
+from widgets import *
+
+DEFAULTLOC = "./img/"
 
 class Scraper:
     def __init__(self, master):
@@ -8,6 +11,7 @@ class Scraper:
         self.frame = Toplevel(master)
         self.frame.grab_set()
         self.frame.wm_title("Scraper Input")
+        self.last_save = DEFAULTLOC
 
         # setup variables to store info
         self.startURL = StringVar(value="")
@@ -160,7 +164,7 @@ def scrape_xkcd(start, stop):
         print("Writing comic #%d" % x)
         for char in "\/?:*<>\"|":
             title = title.replace(char, "_")
-        file = open("./img/xkcd #%d - %s.jpg" % (x, title), 'wb')
+        file = open("%sxkcd #%d - %s.jpg" % (DEFAULTLOC, x, title), 'wb')
         for chunk in res2.iter_content(100000):
             file.write(chunk)
         file.close()
@@ -198,9 +202,9 @@ def scrape_range(start, stop, starturl, imgsel, imgpref, titlesel, comicname, ad
         for char in "\/?:*<>\"|":
             title = title.replace(char, "_")
         if addnum:
-            file = open("./img/%s #%d - %s.%s" % (comicname, x, title, fileform), 'wb')
+            file = open("%s%s #%d - %s.%s" % (DEFAULTLOC, comicname, x, title, fileform), 'wb')
         else:
-            file = open("./img/%s - %s.%s" % (comicname, title, fileform), 'wb')
+            file = open("%s%s - %s.%s" % (DEFAULTLOC, comicname, title, fileform), 'wb')
         for chunk in res2.iter_content(100000):
             file.write(chunk)
         file.close()
@@ -240,9 +244,9 @@ def scrape_all(starturl, imgsel, imgpref, titlesel, comicname, addnum, fileform,
         for char in "\/?:*<>\"|":
             title = title.replace(char, "_")
         if addnum:
-            file = open("./img/%s #%d - %s.%s" % (comicname, x, title, fileform), 'wb')
+            file = open("%s%s #%d - %s.%s" % (DEFAULTLOC, comicname, x, title, fileform), 'wb')
         else:
-            file = open("./img/%s - %s.%s" % (comicname, title, fileform), 'wb')
+            file = open("%s%s - %s.%s" % (DEFAULTLOC, comicname, title, fileform), 'wb')
         for chunk in res2.iter_content(100000):
             file.write(chunk)
         file.close()
