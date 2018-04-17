@@ -80,7 +80,8 @@ class Viewer:
 
     def add_recent(self, directory):
         #get basic info
-        title = (directory.split("/"))[-1]
+        #title = (directory.split("/"))[-1]
+        title = directory
         if self.recent_menu.entrycget(0, "label") == NORECENT:
             self.recent_menu.delete(0)
 
