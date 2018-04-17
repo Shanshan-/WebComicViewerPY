@@ -7,6 +7,9 @@ from widgets import *
 from loader import loadFiles
 from PIL import Image, ImageTk
 
+NORECENT = "<no recent files>"
+RECENTLIMIT = 10
+
 class Viewer:
     def __init__(self, master):
         self.menu, self.recent_menu = self.gen_menu(master)
@@ -50,7 +53,7 @@ class Viewer:
         fileOpts.add_command(label="Scrape New", command=self.open_scrape)
         fileOpts.add_separator()
         fileOpts.add_cascade(label="Open Recent", menu=recentFiles)
-        recentFiles.add_command(label="<no recent files>", state="disabled")
+        recentFiles.add_command(label=NORECENT, state="disabled")
         fileOpts.add_command(label="Open Other", command=self.open_comic)
 
         # Viewer Options
@@ -63,6 +66,34 @@ class Viewer:
         menuBar.add_cascade(label="File Options", menu=fileOpts)
         menuBar.add_cascade(label="Viewer Options", menu=viewOpts)
         return menuBar, recentFiles
+
+    def get_recent(self):
+        ans = []
+        last = self.recent_menu.index("end")
+        if last is None:
+            return []
+        for x in range(last+1):
+            txt = self.recent_menu.entrycget(x, "label")
+            ans.append(txt)
+            x += 1
+        return ans
+
+    def add_recent(self, directory):
+        #get basic info
+        title = (directory.split("/"))[-1]
+        if self.recent_menu.entrycget(0, "label") == NORECENT:
+            self.recent_menu.delete(0)
+
+        #delete duplicate entries
+        entries = self.get_recent()
+        for x in range(len(entries)-1, RECENTLIMIT-1, -1):
+            self.recent_menu.delete(x)
+        entries = self.get_recent()
+        for x in range(len(entries)-1, -1, -1):
+            if entries[x] == title:
+                self.recent_menu.delete(x)
+
+        self.recent_menu.insert(0, itemType="command", label=title, command=lambda:self.open_comic(directory))
 
     def open_scrape(self):
         Scraper(self.cframe)
@@ -77,15 +108,17 @@ class Viewer:
             self.cframe.pack_forget()
             self.eframe.pack()
 
-    def open_comic(self):
+    def open_comic(self, directory=None):
         #clear all items currently in canvas
         for each in self.canvas.winfo_children():
             each.pack_forget()
 
-        #open dialog to let user choose a directory, and use loader to load
-        prompt = "Please select a directory"
-        directory = filedialog.askdirectory(parent=self.eframe, initialdir="./img", title=prompt)
+        if not directory:
+            #open dialog to let user choose a directory, and use loader to load
+            prompt = "Please select a directory"
+            directory = filedialog.askdirectory(parent=self.eframe, initialdir="./img", title=prompt)
         files = loadFiles(directory)
+        self.add_recent(directory)
         print("Displaying %s" % directory)
 
         #display in canvas
