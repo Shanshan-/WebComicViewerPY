@@ -31,7 +31,6 @@ class Scraper:
         self.create_form()
 
     def create_form(self):
-        #TODO: figure out why radio buttons are buggy
         #scraping-related fields
         Label(self.frame, text="Start URL").grid(row=1, column=0)
         Entry(self.frame, textvariable=self.startURL).grid(row=1, column=1, columnspan=3)
