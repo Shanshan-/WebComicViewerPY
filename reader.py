@@ -27,7 +27,8 @@ class Viewer:
         self.eframe.pack()
 
         #generate canvas frame
-        self.scroll_canvas = Canvas(self.cframe, width=swidth, height=sheight)
+        self.scroll_canvas = Canvas(self.cframe)
+        self.scroll_canvas.config(width=self.cframe.winfo_vrootwidth(), height=self.cframe.winfo_vrootheight())
         hbar = Scrollbar(self.cframe, orient=HORIZONTAL, command=self.scroll_canvas.xview)
         hbar.pack(side=BOTTOM, fill=X)
         vbar = Scrollbar(self.cframe, orient=VERTICAL, command=self.scroll_canvas.yview)
@@ -93,7 +94,12 @@ class Viewer:
             l = Label(self.canvas, image=page)
             l.image = page # needed to prevent garbage collection
             l.pack()
-        self.scroll_canvas.config(scrollregion=self.scroll_canvas.bbox("all"))
+        #self.scroll_canvas.config(scrollregion=self.scroll_canvas.bbox("all"))
+        reqdim = (0, 0, self.scroll_canvas.winfo_reqheight(), self.scroll_canvas.winfo_width())
+        otherdim = self.scroll_canvas.bbox("all")
+        self.scroll_canvas.config(scrollregion=otherdim)
+        print(reqdim, otherdim)
+        #TODO: fix problems with scrollbar
         if self.isEmpty:
             self.switch_frame()
 
