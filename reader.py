@@ -33,7 +33,7 @@ class Viewer:
         Button(self.eframe, text="Scrape", command=self.open_scrape).pack(pady=5)
         Button(self.eframe, text="Favorites", command=lambda:self.switch_frame(2)).pack(pady=2)
         Button(self.eframe, text="Open", command=self.open_comic).pack(pady=2)
-        Button(self.eframe, text="OpenD", command=lambda:self.open_comic("./img/extras/")).pack(pady=2)
+        Button(self.eframe, text="OpenD", command=lambda:self.open_comic("./img/lyoko extras/")).pack(pady=2)
         Button(self.eframe, text="QUIT", command=master.destroy).pack(pady=2)
         Label(self.eframe, text="image from xkcd", fg="gray").pack(side=BOTTOM, anchor=SE)
 
@@ -103,8 +103,7 @@ class Viewer:
 
     def add_recent(self, directory):
         #get basic info
-        #title = (directory.split("/"))[-1]
-        title = directory
+        title = (directory.split("/"))[-2] + "/" + (directory.split("/"))[-1]
         if self.recent_menu.entrycget(0, "label") == NORECENT:
             self.recent_menu.delete(0)
 
@@ -121,19 +120,18 @@ class Viewer:
 
     def update_faves(self):
         for each in self.fframe.winfo_children():
-            each.grid_forget()
-        # for idx, [title, path] in enumerate(FavList):
-        #     b1 = Button(self.fframe, text=title, command=lambda arg=path:self.open_comic(arg))
-        #     b2 = Button(self.fframe, text="X", command=lambda arg1=title, arg2=path:self.del_fave([arg1, arg2]))
+            each.destroy()
+        FavList.sort()
         for idx, entry in enumerate(FavList):
             b1 = Button(self.fframe, text=entry[0], command=lambda arg=entry[1]:self.open_comic(arg))
             b2 = Button(self.fframe, text="X", command=lambda arg=entry:self.del_fave(arg))
             b1.grid(row=idx, column=0)
             b2.grid(row=idx, column=1)
-        b = Button(self.fframe, text="Add New Favorite", command=self.add_fave)
-        b.grid(row=len(FavList), columnspan=2)
         for each in self.fframe.winfo_children():
-            each.grid_configure(padx=10, pady=2)
+            each.grid_configure(padx=10, pady=2, sticky="ew")
+            each.configure(font=("", 14))
+        b = Button(self.fframe, text="Add New Favorite", command=self.add_fave)
+        b.grid(row=len(FavList), columnspan=2, padx=10, pady=20, sticky="ew")
 
     def add_fave(self):
         prompt = "Please select a directory"
@@ -206,6 +204,9 @@ def loadSave():
         line = line.strip()
         tmp = line.split(SAVELINEDIV)
         if section == 0: #favorites
+            if not exists(tmp[1]):
+                print("The favorite link \"%s\" for %s does not exists. Removing..." % (tmp[1], tmp[0]))
+                continue
             FavList.append(deepcopy(tmp))
     f.close()
 
