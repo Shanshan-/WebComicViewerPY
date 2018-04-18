@@ -38,7 +38,7 @@ class Viewer:
         Label(self.eframe, text="image from xkcd", fg="gray").pack(side=BOTTOM, anchor=SE)
 
         #generate canvas frame
-        self.scroll_canvas = Canvas(self.cframe, bg="red")
+        self.scroll_canvas = Canvas(self.cframe, bg="coral1")
         self.scroll_canvas.config(width=self.cframe.winfo_vrootwidth())
         self.scroll_canvas.config(height=self.cframe.winfo_vrootheight())
         hbar = Scrollbar(self.cframe, orient=HORIZONTAL, command=self.scroll_canvas.xview)
@@ -48,13 +48,14 @@ class Viewer:
         self.scroll_canvas.config(xscrollcommand=hbar.set, yscrollcommand=vbar.set)
         self.scroll_canvas.pack(side=RIGHT, expand=True, fill=BOTH)
         #frame to go onto canvas
-        self.canvas = Frame(self.scroll_canvas, bg="blue")
+        self.canvas = Frame(self.scroll_canvas, bg="purple1")
         self.cframe.update()
         x = self.cframe.winfo_vrootwidth()
         s = self.scroll_canvas.create_window((0,0), width=x/4)
         self.scroll_canvas.itemconfig(s, window=self.canvas, anchor="nw")
 
         #generate favorites frame
+        Label(self.fframe, text="this feature is not yet completed", fg="gray").pack()
 
     # Generate the menu to go on top, and link as needed
     def gen_menu(self, rootFrame):
@@ -128,13 +129,17 @@ class Viewer:
             self.eframe.pack_forget()
         elif self.curFrame == 1:
             self.cframe.pack_forget()
+        elif self.curFrame == 2:
+            self.fframe.pack_forget()
 
         #show next frame
         self.curFrame = nextFrame
         if nextFrame == 0:
             self.eframe.pack(expand=True)
-        if nextFrame == 1:
-            self.cframe.pack()
+        elif nextFrame == 1:
+            self.cframe.pack(expand=True)
+        elif nextFrame == 2:
+            self.fframe.pack(expand=True)
 
     def open_comic(self, directory=None):
         #clear all items currently in canvas
@@ -155,9 +160,7 @@ class Viewer:
             l = Label(self.canvas, image=page)
             l.image = page # needed to prevent garbage collection
             l.pack(anchor=CENTER)
-        #self.scroll_canvas.config(scrollregion=self.scroll_canvas.bbox("all"))
         self.scroll_canvas.update()
-        reqdim = (0, 0, self.scroll_canvas.winfo_reqheight(), self.scroll_canvas.winfo_width())
         otherdim = self.scroll_canvas.bbox("all")
         self.scroll_canvas.config(scrollregion=otherdim)
         self.switch_frame(1)
