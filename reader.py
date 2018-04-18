@@ -55,7 +55,7 @@ class Viewer:
         self.scroll_canvas.itemconfig(s, window=self.canvas, anchor="nw")
 
         #generate favorites frame
-        Label(self.fframe, text="this feature is not yet completed", fg="gray").pack()
+        self.update_faves()
 
     # Generate the menu to go on top, and link as needed
     def gen_menu(self, rootFrame):
@@ -118,6 +118,34 @@ class Viewer:
                 self.recent_menu.delete(x)
 
         self.recent_menu.insert(0, itemType="command", label=title, command=lambda:self.open_comic(directory))
+
+    def update_faves(self):
+        for each in self.fframe.winfo_children():
+            each.grid_forget()
+        # for idx, [title, path] in enumerate(FavList):
+        #     b1 = Button(self.fframe, text=title, command=lambda arg=path:self.open_comic(arg))
+        #     b2 = Button(self.fframe, text="X", command=lambda arg1=title, arg2=path:self.del_fave([arg1, arg2]))
+        for idx, entry in enumerate(FavList):
+            b1 = Button(self.fframe, text=entry[0], command=lambda arg=entry[1]:self.open_comic(arg))
+            b2 = Button(self.fframe, text="X", command=lambda arg=entry:self.del_fave(arg))
+            b1.grid(row=idx, column=0)
+            b2.grid(row=idx, column=1)
+        b = Button(self.fframe, text="Add New Favorite", command=self.add_fave)
+        b.grid(row=len(FavList), columnspan=2)
+        for each in self.fframe.winfo_children():
+            each.grid_configure(padx=10, pady=2)
+
+    def add_fave(self):
+        prompt = "Please select a directory"
+        directory = filedialog.askdirectory(parent=self.fframe, initialdir="./img", title=prompt)
+        title = (directory.split("/"))[-1]
+        if not [title, directory] in FavList:
+            FavList.append([title, directory])
+        self.update_faves()
+
+    def del_fave(self, entry):
+        FavList.remove(entry)
+        self.update_faves()
 
     def open_scrape(self):
         Scraper(self.cframe)
