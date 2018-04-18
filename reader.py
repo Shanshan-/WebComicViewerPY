@@ -6,9 +6,16 @@ from scraper import *
 from widgets import *
 from loader import loadFiles
 from PIL import Image, ImageTk
+from copy import deepcopy
 
 NORECENT = "<no recent files>"
 RECENTLIMIT = 10
+
+SAVEPATH = "wcv.config"
+SAVECATDIV = "$$\n"
+SAVELINEDIV = "|"
+
+fave_list = []
 
 class Viewer:
     def __init__(self, master):
@@ -137,8 +144,31 @@ class Viewer:
         if self.isEmpty:
             self.switch_frame()
 
+def loadSave():
+
+    f = open(SAVEPATH, "r")
+    section = -1
+    for line in f:
+        if line == SAVECATDIV:
+            section += 1
+            continue
+        line = line.strip()
+        tmp = line.split(SAVELINEDIV)
+        if section == 0: #favorites
+            fave_list.append(deepcopy(tmp))
+    f.close()
+
+def makeSave():
+    f = open(SAVEPATH, "w")
+    f.write(SAVECATDIV)
+    for each in fave_list:
+        f.write(each[0] + SAVELINEDIV + each[1] + "\n")
+    f.write(SAVECATDIV)
+    f.close()
+
 if __name__ == "__main__":
     # create the root window which will hold all objects
+    loadSave()
     root = Tk()
     sheight = int(root.winfo_screenheight() * 0.7)
     swidth = int(root.winfo_screenwidth() * 0.7)
@@ -149,6 +179,7 @@ if __name__ == "__main__":
 
     # start program and open window
     root.mainloop()
+    makeSave()
     try:
         root.destroy()
     except Exception as e:
