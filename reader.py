@@ -16,14 +16,6 @@ SAVELINEDIV = "|"
 
 FavList = []
 
-"""
-        # Favorite Comics
-        favCom = Menu(menuBar, tearoff=0)
-        for each in FavList:
-            favCom.add_command(label=each[0], command=lambda:self.open_comic(each[1]))
-        recentFiles.add_command(label="Add New Favorite", command=)
-"""
-
 class Viewer:
     def __init__(self, master):
         self.menu, self.recent_menu = self.gen_menu(master)
