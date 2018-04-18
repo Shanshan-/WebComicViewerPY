@@ -1,4 +1,3 @@
-# using guide from http://effbot.org/tkinterbook/tkinter-classes.htm
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
@@ -15,39 +14,55 @@ SAVEPATH = "wcv.config"
 SAVECATDIV = "$$\n"
 SAVELINEDIV = "|"
 
-fave_list = []
+FavList = []
+
+"""
+        # Favorite Comics
+        favCom = Menu(menuBar, tearoff=0)
+        for each in FavList:
+            favCom.add_command(label=each[0], command=lambda:self.open_comic(each[1]))
+        recentFiles.add_command(label="Add New Favorite", command=)
+"""
 
 class Viewer:
     def __init__(self, master):
         self.menu, self.recent_menu = self.gen_menu(master)
-        self.cframe = Frame(master)
-        self.eframe = Frame(master)
-        self.isEmpty = True
+        self.cframe = Frame(master) # frame 0
+        self.eframe = Frame(master) # frame 1
+        self.fframe = Frame(master) # frame 2
+        self.curFrame = 0 # refers to the frame to be displayed
+        self.switch_frame(self.curFrame)
 
-        #generate and display empty frame
+        #generate empty frame
         photo = ImageTk.PhotoImage(Image.open("img/xkcd #3 - Hello, island.jpg"))
         l = Label(self.eframe, image=photo)
         l.image = photo # needed to prevent garbage collection
         l.pack()
-        Label(self.eframe, text="No images to display now", fg="gray").pack()
-        Button(self.eframe, text="QUIT", command=master.destroy).pack()
-        Button(self.eframe, text="Scrape", command=self.open_scrape).pack()
-        Button(self.eframe, text="Switch", command=self.switch_frame).pack()
-        Button(self.eframe, text="Open", command=self.open_comic).pack()
-        self.eframe.pack()
+        Button(self.eframe, text="Scrape", command=self.open_scrape).pack(pady=5)
+        Button(self.eframe, text="Favorites", command=lambda:self.switch_frame(2)).pack(pady=2)
+        Button(self.eframe, text="Open", command=self.open_comic).pack(pady=2)
+        Button(self.eframe, text="OpenD", command=lambda:self.open_comic("./img/extras/")).pack(pady=2)
+        Button(self.eframe, text="QUIT", command=master.destroy).pack(pady=2)
+        Label(self.eframe, text="image from xkcd", fg="gray").pack(side=BOTTOM, anchor=SE)
 
         #generate canvas frame
-        self.scroll_canvas = Canvas(self.cframe)
-        self.scroll_canvas.config(width=self.cframe.winfo_vrootwidth(), height=self.cframe.winfo_vrootheight())
+        self.scroll_canvas = Canvas(self.cframe, bg="red")
+        self.scroll_canvas.config(width=self.cframe.winfo_vrootwidth())
+        self.scroll_canvas.config(height=self.cframe.winfo_vrootheight())
         hbar = Scrollbar(self.cframe, orient=HORIZONTAL, command=self.scroll_canvas.xview)
         hbar.pack(side=BOTTOM, fill=X)
         vbar = Scrollbar(self.cframe, orient=VERTICAL, command=self.scroll_canvas.yview)
         vbar.pack(side=RIGHT, fill=Y)
         self.scroll_canvas.config(xscrollcommand=hbar.set, yscrollcommand=vbar.set)
+        self.scroll_canvas.pack(side=RIGHT, expand=True, fill=BOTH)
+        #frame to go onto canvas
+        self.canvas = Frame(self.scroll_canvas, bg="blue")
+        self.cframe.update()
+        x = self.cframe.winfo_vrootwidth()
+        s = self.scroll_canvas.create_window((0,0), width=x/4)
+        self.scroll_canvas.itemconfig(s, window=self.canvas, anchor="nw")
 
-        self.scroll_canvas.pack(side=TOP, expand=True, fill=BOTH)
-        self.canvas = Frame(self.scroll_canvas)
-        self.scroll_canvas.create_window((0,0), window=self.canvas, anchor="nw")
+        #generate favorites frame
 
     # Generate the menu to go on top, and link as needed
     def gen_menu(self, rootFrame):
@@ -65,13 +80,21 @@ class Viewer:
 
         # Viewer Options
         viewOpts = Menu(menuBar, tearoff=0)
-        viewOpts.add_command(label="Switch Frames", command=self.switch_frame)
         viewOpts.add_command(label="<to be made>", command=NONE, state="disabled")
         viewOpts.add_command(label="Quit", command=rootFrame.destroy)
+
+        # Frame Options
+        gotoOpt = Menu(menuBar, tearoff=0)
+        gotoOpt.add_command(label="Home", command=lambda:self.switch_frame(0))
+        gotoOpt.add_command(label="Current Comic", command=lambda:self.switch_frame(1))
+        gotoOpt.add_command(label="Favorites", command=lambda:self.switch_frame(2))
+        gotoOpt.add_command(label="Scraper", command=lambda:self.switch_frame(3), state="disabled")
+        gotoOpt.add_command(label="Settings", command=lambda:self.switch_frame(3), state="disabled")
 
         # Put it all together and return
         menuBar.add_cascade(label="File Options", menu=fileOpts)
         menuBar.add_cascade(label="Viewer Options", menu=viewOpts)
+        menuBar.add_cascade(label="Go To", menu=gotoOpt)
         return menuBar, recentFiles
 
     def get_recent(self):
@@ -92,7 +115,7 @@ class Viewer:
         if self.recent_menu.entrycget(0, "label") == NORECENT:
             self.recent_menu.delete(0)
 
-        #delete duplicate entries
+        #delete duplicate entries and trim list
         entries = self.get_recent()
         for x in range(len(entries)-1, RECENTLIMIT-1, -1):
             self.recent_menu.delete(x)
@@ -107,14 +130,19 @@ class Viewer:
         Scraper(self.cframe)
         #TODO: implement taking results from pop-up and implementing them
 
-    def switch_frame(self):
-        self.isEmpty = not self.isEmpty
-        if not self.isEmpty:
+    def switch_frame(self, nextFrame=0):
+        #hide current frame
+        if self.curFrame == 0:
             self.eframe.pack_forget()
-            self.cframe.pack()
-        else:
+        elif self.curFrame == 1:
             self.cframe.pack_forget()
-            self.eframe.pack()
+
+        #show next frame
+        self.curFrame = nextFrame
+        if nextFrame == 0:
+            self.eframe.pack(expand=True)
+        if nextFrame == 1:
+            self.cframe.pack()
 
     def open_comic(self, directory=None):
         #clear all items currently in canvas
@@ -134,18 +162,18 @@ class Viewer:
             page = ImageTk.PhotoImage(Image.open(value.path))
             l = Label(self.canvas, image=page)
             l.image = page # needed to prevent garbage collection
-            l.pack()
+            l.pack(anchor=CENTER)
         #self.scroll_canvas.config(scrollregion=self.scroll_canvas.bbox("all"))
+        self.scroll_canvas.update()
         reqdim = (0, 0, self.scroll_canvas.winfo_reqheight(), self.scroll_canvas.winfo_width())
         otherdim = self.scroll_canvas.bbox("all")
         self.scroll_canvas.config(scrollregion=otherdim)
-        print(reqdim, otherdim)
-        #TODO: fix problems with scrollbar
-        if self.isEmpty:
-            self.switch_frame()
+        self.switch_frame(1)
 
 def loadSave():
-
+    from os.path import exists
+    if not exists(SAVEPATH):
+        return
     f = open(SAVEPATH, "r")
     section = -1
     for line in f:
@@ -155,13 +183,13 @@ def loadSave():
         line = line.strip()
         tmp = line.split(SAVELINEDIV)
         if section == 0: #favorites
-            fave_list.append(deepcopy(tmp))
+            FavList.append(deepcopy(tmp))
     f.close()
 
 def makeSave():
     f = open(SAVEPATH, "w")
     f.write(SAVECATDIV)
-    for each in fave_list:
+    for each in FavList:
         f.write(each[0] + SAVELINEDIV + each[1] + "\n")
     f.write(SAVECATDIV)
     f.close()
