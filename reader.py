@@ -7,9 +7,11 @@ from loader import loadFiles
 from PIL import Image, ImageTk
 from copy import deepcopy
 
+# recent comic constants
 NORECENT = "<no recent files>"
 RECENTLIMIT = 10
 
+# save file constants
 SAVEPATH = "wcv.config"
 SAVECATDIV = "$$\n"
 SAVELINEDIV = "|"
@@ -47,7 +49,8 @@ class Viewer:
         vbar.pack(side=RIGHT, fill=Y)
         self.scroll_canvas.config(xscrollcommand=hbar.set, yscrollcommand=vbar.set)
         self.scroll_canvas.pack(side=RIGHT, expand=True, fill=BOTH)
-        #frame to go onto canvas
+
+        #generate frame to go onto canvas
         self.canvas = Frame(self.scroll_canvas, bg="purple1")
         self.cframe.update()
         x = self.cframe.winfo_vrootwidth()
@@ -85,15 +88,16 @@ class Viewer:
         gotoOpt.add_command(label="Settings", command=lambda:self.switch_frame(3), state="disabled")
 
         # Put it all together and return
+        menuBar.add_cascade(label="Go To", menu=gotoOpt)
         menuBar.add_cascade(label="File Options", menu=fileOpts)
         menuBar.add_cascade(label="Viewer Options", menu=viewOpts)
-        menuBar.add_cascade(label="Go To", menu=gotoOpt)
         return menuBar, recentFiles
 
+    # Generates a list of all items in the recently opened menu
     def get_recent(self):
         ans = []
         last = self.recent_menu.index("end")
-        if last is None:
+        if last is None: # no recent comics
             return []
         for x in range(last+1):
             txt = self.recent_menu.entrycget(x, "label")
@@ -101,6 +105,7 @@ class Viewer:
             x += 1
         return ans
 
+    # Adds an item to the recently opened menu
     def add_recent(self, directory):
         #get basic info
         title = (directory.split("/"))[-2] + "/" + (directory.split("/"))[-1]
@@ -118,6 +123,7 @@ class Viewer:
 
         self.recent_menu.insert(0, itemType="command", label=title, command=lambda:self.open_comic(directory))
 
+    # Re-draw the favorites frame according to FavList
     def update_faves(self):
         for each in self.fframe.winfo_children():
             each.destroy()
@@ -133,6 +139,7 @@ class Viewer:
         b = Button(self.fframe, text="Add New Favorite", command=self.add_fave)
         b.grid(row=len(FavList), columnspan=2, padx=10, pady=20, sticky="ew")
 
+    # Add a new favorite comic to the favorites frame
     def add_fave(self):
         prompt = "Please select a directory"
         directory = filedialog.askdirectory(parent=self.fframe, initialdir="./img", title=prompt)
@@ -141,15 +148,18 @@ class Viewer:
             FavList.append([title, directory])
         self.update_faves()
 
+    # Delete a comic from the favorites page
     def del_fave(self, entry):
         FavList.remove(entry)
         self.update_faves()
 
+    # Initialize the scraper
     def open_scrape(self):
         Scraper(self.cframe)
         #TODO: implement taking results from pop-up and implementing them
 
-    def switch_frame(self, nextFrame=0):
+    # Switch to the frame indicated by nextFrame
+    def switch_frame(self, nextFrame):
         #hide current frame
         if self.curFrame == 0:
             self.eframe.pack_forget()
@@ -161,16 +171,17 @@ class Viewer:
         #show next frame
         self.curFrame = nextFrame
         if nextFrame == 0:
-            self.eframe.pack(expand=True)
+            self.eframe.pack(expand=True, fill=BOTH, side=TOP)
         elif nextFrame == 1:
-            self.cframe.pack(expand=True)
+            self.cframe.pack(expand=True, fill=BOTH, side=TOP)
         elif nextFrame == 2:
-            self.fframe.pack(expand=True)
+            self.fframe.pack(expand=True, side=TOP)
 
+    # Load indicated comic
     def open_comic(self, directory=None):
         #clear all items currently in canvas
         for each in self.canvas.winfo_children():
-            each.pack_forget()
+            each.destroy()
 
         if not directory:
             #open dialog to let user choose a directory, and use loader to load
@@ -191,6 +202,7 @@ class Viewer:
         self.scroll_canvas.config(scrollregion=otherdim)
         self.switch_frame(1)
 
+# Load the save file from memory
 def loadSave():
     from os.path import exists
     if not exists(SAVEPATH):
@@ -205,11 +217,12 @@ def loadSave():
         tmp = line.split(SAVELINEDIV)
         if section == 0: #favorites
             if not exists(tmp[1]):
-                print("The favorite link \"%s\" for %s does not exists. Removing..." % (tmp[1], tmp[0]))
+                print("The favorite comic %s at \"%s\" does not exists. Removing..." % (tmp[0], tmp[1]))
                 continue
             FavList.append(deepcopy(tmp))
     f.close()
 
+# Generate a save file and save it
 def makeSave():
     f = open(SAVEPATH, "w")
     f.write(SAVECATDIV)
@@ -226,7 +239,6 @@ if __name__ == "__main__":
     swidth = int(root.winfo_screenwidth() * 0.7)
     root.geometry('%sx%s' % (swidth, sheight))
     root.wm_title("WCV Reader")
-    #genMenu(root)
     app = Viewer(root)
 
     # start program and open window
@@ -234,5 +246,7 @@ if __name__ == "__main__":
     makeSave()
     try:
         root.destroy()
+    except TclError:
+        pass
     except Exception as e:
-        print("Error occured:%s" % e)
+        print("Error occurred: %s" % e)
