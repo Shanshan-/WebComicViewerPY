@@ -262,16 +262,19 @@ def scrape_all(starturl, imgsel, imgpref, titlesel, comicname, addnum, fileform,
 
 """Tests for above functions"""
 if __name__ == "__main__":
-    scrape_xkcd()
+    #scrape_xkcd()
 
     #Testing for gen_scrape
-    xkcd = [1, 5, "http://xkcd.com/", "#comic img", "http:", "title", "xkcd", True, "jpg"]
-    lyoko = [1, 5, "http://codegamenight.thecomicseries.com/comics/", "#comicimage", "", "alt", "Code Game Night", False, "png"]
-    gems = [1, 5, "http://crystalgms.thecomicseries.com/comics/", "#comicimage", "", "alt", "Crystal GMs", True, "jpg"]
-    scrape_range(*xkcd)
-    scrape_range(*lyoko)
-    scrape_range(*gems)
+    #xkcd = [1, 5, "http://xkcd.com/", "#comic img", "http:", "title", "xkcd", True, "jpg"]
+    #lyoko = [1, 5, "http://codegamenight.thecomicseries.com/comics/", "#comicimage", "", "alt", "Code Game Night", False, "png"]
+    #gems = [1, 5, "http://crystalgms.thecomicseries.com/comics/", "#comicimage", "", "alt", "Crystal GMs", True, "jpg"]
+    #scrape_range(*xkcd)
+    #scrape_range(*lyoko)
+    #scrape_range(*gems)
 
     #Testing for scrape_all
-    scrape_all("http://codegamenight.thecomicseries.com/comics/first/", "#comicimage", "", "alt", "Code Game Night", False, "png", 'a[rel="next"]', "http://codegamenight.thecomicseries.com")
-    scrape_all("http://www.misfile.com/?date=2017-08-05", ".comic img", "http://www.misfile.com/", "alt", "Misfile", True, "jpg", ".comic a", "")
+    #scrape_all("http://codegamenight.thecomicseries.com/comics/first/", "#comicimage", "", "alt", "Code Game Night", False, "png", 'a[rel="next"]', "http://codegamenight.thecomicseries.com")
+    #scrape_all("http://www.misfile.com/?date=2017-08-05", ".comic img", "http://www.misfile.com/", "alt", "Misfile", True, "jpg", ".comic a", "")
+
+    #update currently managed ones
+    scrape_all("http://codegamenight.thecomicseries.com/comics/278/", "#comicimage", "", "alt", "Code Game Night", False, "png", 'a[rel="next"]', "http://codegamenight.thecomicseries.com")
