@@ -86,8 +86,19 @@ class MainWindow:
         self.mainFrame = Frame(master)
         Button(self.mainFrame, text="Fonts", font=("", 16),  command=self.font_window).pack(side=TOP, pady=10)
         Button(self.mainFrame, text="Colors", font=("", 16),  command=self.color_window).pack(side=TOP, pady=10)
+        Button(self.mainFrame, text="Sizes", font=("", 16),  command=self.font_size_window).pack(side=TOP, pady=10)
         Button(self.mainFrame, text="Quit", font=("", 16), command=master.destroy).pack(side=TOP, pady=10)
         self.mainFrame.pack(padx=100, pady=50, ipady=5, ipadx=10)
+
+    def font_size_window(self):
+        txt = "AaBbCcDdEe"
+        t = Toplevel(self.mainFrame)
+        t.wm_title("Font Sizes")
+        num = 10
+        for x in range(8, 38, 2):
+            l = Label(t, text=str(x) + " : " + txt, font=("", x))
+            y = x-8
+            l.grid(row=y%num, column=int(y/num), ipadx=10, ipady=10)
 
     def font_window(self):
         t = Toplevel(self.mainFrame)
@@ -116,7 +127,6 @@ class MainWindow:
           if row > 36:
             row = 0
             col += 1
-
 
 if __name__ == "__main__":
     root = Tk()
