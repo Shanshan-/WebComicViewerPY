@@ -6,6 +6,7 @@ from widgets import *
 from loader import loadFiles
 from PIL import Image, ImageTk
 from copy import deepcopy
+from os.path import relpath
 
 # recent comic constants
 NORECENT = "<no recent files>"
@@ -40,22 +41,22 @@ class Viewer:
         Label(self.eframe, text="image from xkcd", fg="gray").pack(side=BOTTOM, anchor=SE)
 
         #generate canvas frame
-        self.scroll_canvas = Canvas(self.cframe, bg="coral1")
-        self.scroll_canvas.config(width=self.cframe.winfo_vrootwidth())
-        self.scroll_canvas.config(height=self.cframe.winfo_vrootheight())
-        hbar = Scrollbar(self.cframe, orient=HORIZONTAL, command=self.scroll_canvas.xview)
+        self.ccanvas = Canvas(self.cframe)
+        self.ccanvas.config(width=self.cframe.winfo_vrootwidth())
+        self.ccanvas.config(height=self.cframe.winfo_vrootheight())
+        hbar = Scrollbar(self.cframe, orient=HORIZONTAL, command=self.ccanvas.xview)
         hbar.pack(side=BOTTOM, fill=X)
-        vbar = Scrollbar(self.cframe, orient=VERTICAL, command=self.scroll_canvas.yview)
+        vbar = Scrollbar(self.cframe, orient=VERTICAL, command=self.ccanvas.yview)
         vbar.pack(side=RIGHT, fill=Y)
-        self.scroll_canvas.config(xscrollcommand=hbar.set, yscrollcommand=vbar.set)
-        self.scroll_canvas.pack(side=RIGHT, expand=True, fill=BOTH)
+        self.ccanvas.config(xscrollcommand=hbar.set, yscrollcommand=vbar.set)
+        self.ccanvas.pack(side=RIGHT, expand=True, fill=BOTH)
 
         #generate frame to go onto canvas
-        self.canvas = Frame(self.scroll_canvas, bg="purple1")
+        self.canvas_frame = Frame(self.ccanvas)
         self.cframe.update()
         x = self.cframe.winfo_vrootwidth()
-        s = self.scroll_canvas.create_window((0,0), width=x/4)
-        self.scroll_canvas.itemconfig(s, window=self.canvas, anchor="nw")
+        self.ccreated_frame = self.ccanvas.create_window((0, 0), window=self.canvas_frame, anchor="nw")
+        self.ccanvas.bind("<Configure>", self.CanvasFrameWidthHandler)
 
         #generate favorites frame
         self.update_faves()
@@ -135,14 +136,15 @@ class Viewer:
             b2.grid(row=idx, column=1)
         for each in self.fframe.winfo_children():
             each.grid_configure(padx=10, pady=2, sticky="ew")
-            each.configure(font=("", 14))
+            each.configure(font=("Brittanic Bold", 14))
         b = Button(self.fframe, text="Add New Favorite", command=self.add_fave)
         b.grid(row=len(FavList), columnspan=2, padx=10, pady=20, sticky="ew")
 
     # Add a new favorite comic to the favorites frame
     def add_fave(self):
         prompt = "Please select a directory"
-        directory = filedialog.askdirectory(parent=self.fframe, initialdir="./img", title=prompt)
+        absdir = filedialog.askdirectory(parent=self.fframe, initialdir="./img", title=prompt)
+        directory = relpath(absdir, ".")
         title = (directory.split("/"))[-1]
         if not [title, directory] in FavList:
             FavList.append([title, directory])
@@ -180,7 +182,7 @@ class Viewer:
     # Load indicated comic
     def open_comic(self, directory=None):
         #clear all items currently in canvas
-        for each in self.canvas.winfo_children():
+        for each in self.canvas_frame.winfo_children():
             each.destroy()
 
         if not directory:
@@ -194,13 +196,18 @@ class Viewer:
         #display in canvas
         for key, value in files.items():
             page = ImageTk.PhotoImage(Image.open(value.path))
-            l = Label(self.canvas, image=page)
+            l = Label(self.canvas_frame, image=page)
             l.image = page # needed to prevent garbage collection
             l.pack(anchor=CENTER)
-        self.scroll_canvas.update()
-        otherdim = self.scroll_canvas.bbox("all")
-        self.scroll_canvas.config(scrollregion=otherdim)
+        self.ccanvas.update()
+        otherdim = self.ccanvas.bbox("all")
+        self.ccanvas.config(scrollregion=otherdim)
         self.switch_frame(1)
+
+    # Event Handlers
+    def CanvasFrameWidthHandler(self, event):
+        canvas_width = event.width
+        self.ccanvas.itemconfig(self.ccreated_frame, width=canvas_width)
 
 # Load the save file from memory
 def loadSave():
