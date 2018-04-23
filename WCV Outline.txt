@@ -13,6 +13,8 @@ WCV Outline and parts needed:
 		* location refers to div, class, id, or tag
 	- for now, also add an admin access to directly call functions
 	- scrape first three pages as test, and display before scraping all requested
+	- save settings for a particular comic, and pull back up later (eg. use .swcv files?)
+	- have it take in an object (like a c struct)
 	(-) options for metadata info
 - Loader
 	- current does load desired filenames, but to single list
@@ -34,11 +36,26 @@ WCV Outline and parts needed:
 	- zoom in / zoom out
 	- full screen
 	- view one, all, chapter
-	- jump to page, chapter
+	- jump to page, chapter (in canvas, yview_moveto(fraction))
 	- bookmarks
 	- background color (use set list)
 	- favorites list
+	- scrolling (in canvas, yview_scroll(number, what))
 - Viewer GUI
 	- must account for features
 	- Scraper GUI: simple (series of) dialog box(es) to prompt for scraper inputs
 	- Loader GUI: dialog box with options to chose what to load
+- Save file format
+    - Favorite Comics:
+        $$
+        <label title>|<path to folder>
+        <label title>|<path to folder>
+        <label title>|<path to folder>
+        $$
+
+- useful links:
+    - tkinter guide: http://effbot.org/tkinterbook/tkinter-classes.htm
+    - free icons: https://www.flaticon.com/packs/universal-icons-2
+    - tkinter colors: http://www.science.smith.edu/dftwiki/index.php/Color_Charts_for_TKinter
+    - tkinter winfo: https://www.tcl.tk/man/tcl8.4/TkCmd/winfo.htm#M48
+    - comic page: https://stackoverflow.com/questions/29319445/tkinter-how-to-get-frame-in-canvas-window-to-expand-to-the-size-of-the-canvas
