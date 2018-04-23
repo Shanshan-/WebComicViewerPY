@@ -17,6 +17,11 @@ SAVEPATH = "wcv.config"
 SAVECATDIV = "$$\n"
 SAVELINEDIV = "|"
 
+# comic frame constants
+EFRAME = 0
+CFRAME = 1
+FFRAME = 2
+
 FavList = []
 
 class Viewer:
@@ -25,7 +30,7 @@ class Viewer:
         self.cframe = Frame(master) # frame 0
         self.eframe = Frame(master) # frame 1
         self.fframe = Frame(master) # frame 2
-        self.curFrame = 0 # refers to the frame to be displayed
+        self.curFrame = EFRAME # refers to the frame to be displayed
         self.switch_frame(self.curFrame)
 
         #generate empty frame
@@ -54,9 +59,9 @@ class Viewer:
         #generate frame to go onto canvas
         self.canvas_frame = Frame(self.ccanvas)
         self.cframe.update()
-        x = self.cframe.winfo_vrootwidth()
         self.ccreated_frame = self.ccanvas.create_window((0, 0), window=self.canvas_frame, anchor="nw")
-        self.ccanvas.bind("<Configure>", self.CanvasFrameWidthHandler)
+        self.ccanvas.bind("<Configure>", self.CanvasFrameWidthHandler) # binding to center comic frame
+        self.ccanvas.bind_all("<MouseWheel>", self.CanvasMouseWheelHandler) #binding for comic scrolling
 
         #generate favorites frame
         self.update_faves()
@@ -163,20 +168,20 @@ class Viewer:
     # Switch to the frame indicated by nextFrame
     def switch_frame(self, nextFrame):
         #hide current frame
-        if self.curFrame == 0:
+        if self.curFrame == EFRAME:
             self.eframe.pack_forget()
-        elif self.curFrame == 1:
+        elif self.curFrame == CFRAME:
             self.cframe.pack_forget()
-        elif self.curFrame == 2:
+        elif self.curFrame == FFRAME:
             self.fframe.pack_forget()
 
         #show next frame
         self.curFrame = nextFrame
-        if nextFrame == 0:
+        if nextFrame == EFRAME:
             self.eframe.pack(expand=True, fill=BOTH, side=TOP)
-        elif nextFrame == 1:
+        elif nextFrame == CFRAME:
             self.cframe.pack(expand=True, fill=BOTH, side=TOP)
-        elif nextFrame == 2:
+        elif nextFrame == FFRAME:
             self.fframe.pack(expand=True, side=TOP)
 
     # Load indicated comic
@@ -208,6 +213,10 @@ class Viewer:
     def CanvasFrameWidthHandler(self, event):
         canvas_width = event.width
         self.ccanvas.itemconfig(self.ccreated_frame, width=canvas_width)
+
+    def CanvasMouseWheelHandler(self, event):
+        if self.curFrame == CFRAME:
+            self.ccanvas.yview_scroll(-1*int(event.delta/60), "units")
 
 # Load the save file from memory
 def loadSave():
