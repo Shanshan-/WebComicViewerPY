@@ -380,6 +380,8 @@ class ScrapeSettings:
             self.__setattr__(each[:div], each[div+1:])
 
 def gen_scrape(settings):
+    if not settings.starturl or settings.imagesel:
+        raise Exception("Must have both starting URL and an image selector")
     try:
         curPage = int(settings.starturl[settings.starturl.rfind("/")+1:])
     except ValueError:
@@ -394,14 +396,23 @@ def gen_scrape(settings):
             raise Exception("URL \"%s\" invalid... ending scrape" % curUrl)
         res.raise_for_status()
         pageSoup = bs4.BeautifulSoup(res.text, "html.parser")
-        pageTitle = pageSoup.select(settings.titlesel)[0].getText()
+        try:
+            pageTitle = pageSoup.select(settings.titlesel)[0].getText()
+        except:
+            raise Exception("Unable to extract title")
 
         #extract image url and name
-        for indx, imgElem in enumerate(pageSoup.select(settings.imagesel)):
+        try:
+            imgList = enumerate(pageSoup.select(settings.imagesel))
+        except:
+            raise Exception("Unable to use given image selector to find images")
+        for indx, imgElem in imgList:
             imgUrl = settings.imagepref + imgElem.get('src')
             imgFormat = imgUrl[imgUrl.rfind("."):]
             if settings.multpages:
                 pageTitle = "Chapter %d Page %d" % (curPage, indx+1)
+            if not pageTitle:
+                raise Exception("Page Title is empty")
 
             # scrape the image
             res2 = requests.get(imgUrl)
