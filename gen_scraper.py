@@ -43,11 +43,14 @@ class Scraper:
         self.defOption = StringVar(value="None")
         self.defChoices = ["None", "Code: Game Night", "Friendship is Dragons", "Royal Tutor", "Crystal GMs", "XKCD"]
         self.defMenu = OptionMenu(self.frame, self.defOption, *self.defChoices)
+        self.defMenu['menu'].entryconfig("Royal Tutor", state="disabled")
+        self.defMenu['menu'].entryconfig("XKCD", state="disabled")
         self.defMenu.grid(row=10, column=7, columnspan=2, sticky="")
         self.defOption.trace('w', self.chooseDefault)
 
         # populate the window
         #TODO: allow for use of pre-built profiles
+        #TODO: change the startURL, endURL format to to be baseURL, startNum, and endNum
         useHinted = True
         self.create_form_hinted() if useHinted else self.create_form()
 
@@ -202,7 +205,7 @@ class Scraper:
             self.filenameNum.set(FALSE)
             self.filenameStartNum.set(-1)
             self.saveLoc.set("./img/Code Game Night/")
-        elif choice == self.defChoices[2]: #FiD Option
+        elif choice == self.defChoices[2]: #MLP FiD Option
             self.startURL.set("http://friendshipisdragons.thecomicseries.com/comics/1050")
             self.endURL.set("http://friendshipisdragons.thecomicseries.com/comics/")
             self.nextPage.set('a[rel="next"]')
@@ -220,42 +223,42 @@ class Scraper:
             self.filenameNum.set(FALSE)
             self.filenameStartNum.set(-1)
             self.saveLoc.set("./img/MLP FiD/")
-        elif choice == self.defChoices[3]: #Code Game Night Option
-            self.startURL.set("http://codegamenight.thecomicseries.com/comics/")
-            self.endURL.set("http://codegamenight.thecomicseries.com/comics/")
+        elif choice == self.defChoices[3]: #Royal Tutor Option
+            self.startURL.set("http://mangaseeonline.us/read-online/The-Royal-Tutor-chapter-57")
+            self.endURL.set("http://mangaseeonline.us/read-online/The-Royal-Tutor-chapter-")
+            self.nextPage.set("")
+            self.nextPageID.set("")
+            self.nextPagePreB.set(FALSE)
+            self.nextPagePre.set("")
+            self.content.set(".fullchapimage img")
+            self.contentID.set("")
+            self.contentPreB.set(FALSE)
+            self.contentPre.set("")
+            self.multPages.set(TRUE)
+            self.titleLoc.set("alt")
+            self.titleLocID.set("")
+            self.comicname.set("Royal Tutor Heine")
+            self.filenameNum.set(FALSE)
+            self.filenameStartNum.set(-1)
+            self.saveLoc.set("./img/Royal Tutor/")
+        elif choice == self.defChoices[4]: #Crystal GMs Option
+            self.startURL.set("http://crystalgms.thecomicseries.com/comics/100")
+            self.endURL.set("http://crystalgms.thecomicseries.com/comics/105")
             self.nextPage.set('a[rel="next"]')
             self.nextPageID.set("")
             self.nextPagePreB.set(TRUE)
-            self.nextPagePre.set("http://codegamenight.thecomicseries.com")
+            self.nextPagePre.set("http://crystalgms.thecomicseries.com")
             self.content.set("#comicimage")
             self.contentID.set("")
             self.contentPreB.set(FALSE)
             self.contentPre.set("")
             self.multPages.set(FALSE)
-            self.titleLoc.set("alt")
+            self.titleLoc.set(".comicimage img")
             self.titleLocID.set("")
-            self.comicname.set("Code Game Night")
+            self.comicname.set("Crystal GMs")
             self.filenameNum.set(FALSE)
             self.filenameStartNum.set(1)
-            self.saveLoc.set("./img/Code Game Night/")
-        elif choice == self.defChoices[4]: #Code Game Night Option
-            self.startURL.set("http://codegamenight.thecomicseries.com/comics/")
-            self.endURL.set("http://codegamenight.thecomicseries.com/comics/")
-            self.nextPage.set('a[rel="next"]')
-            self.nextPageID.set("")
-            self.nextPagePreB.set(TRUE)
-            self.nextPagePre.set("http://codegamenight.thecomicseries.com")
-            self.content.set("#comicimage")
-            self.contentID.set("")
-            self.contentPreB.set(FALSE)
-            self.contentPre.set("")
-            self.multPages.set(FALSE)
-            self.titleLoc.set("alt")
-            self.titleLocID.set("")
-            self.comicname.set("Code Game Night")
-            self.filenameNum.set(FALSE)
-            self.filenameStartNum.set(1)
-            self.saveLoc.set("./img/Code Game Night/")
+            self.saveLoc.set("./img/Crystal GMs/")
         elif choice == self.defChoices[5]: #Code Game Night Option
             self.startURL.set("http://codegamenight.thecomicseries.com/comics/")
             self.endURL.set("http://codegamenight.thecomicseries.com/comics/")
@@ -380,7 +383,7 @@ class ScrapeSettings:
             self.__setattr__(each[:div], each[div+1:])
 
 def gen_scrape(settings):
-    if not settings.starturl or settings.imagesel:
+    if not settings.starturl or not settings.imagesel:
         raise Exception("Must have both starting URL and an image selector")
     try:
         curPage = int(settings.starturl[settings.starturl.rfind("/")+1:])
@@ -398,8 +401,13 @@ def gen_scrape(settings):
         pageSoup = bs4.BeautifulSoup(res.text, "html.parser")
         try:
             pageTitle = pageSoup.select(settings.titlesel)[0].getText()
+            if not pageTitle:
+                pageTitle = pageSoup.select(settings.titlesel)
         except:
-            raise Exception("Unable to extract title")
+            try:
+                pageTitle = pageSoup.select(settings.titlesel)
+            except:
+                raise Exception("Unable to extract title")
 
         #extract image url and name
         try:
