@@ -210,6 +210,7 @@ class Viewer:
         otherdim = self.ccanvas.bbox("all")
         self.ccanvas.config(scrollregion=otherdim)
         self.switch_frame(1)
+        #TODO: add option of viewing up to ~50 pages at a time, with next/back buttons
 
     # Event Handlers
     def CanvasFrameWidthHandler(self, event):

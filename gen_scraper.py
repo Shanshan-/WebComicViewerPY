@@ -105,6 +105,7 @@ class Scraper:
 
     def chooseDefault(self, *args):
         choice = self.defOption.get()
+        print(self.startURL.get())
         if choice == self.defChoices[0]:
             self.startURL.set(value="")
             self.endURL.set(value="")
@@ -142,6 +143,9 @@ class Scraper:
             self.filenameStartNum.set(1)
             self.saveLoc.set("./img/Code Game Night/")
         Tk.update(self.master)
+        print(self.startURL.get())
+        #TODO: HintedEntries should update text, not hint text
+        # starting point: https://stackoverflow.com/questions/6548837/how-do-i-get-an-event-callback-when-a-tkinter-entry-widget-is-modified, https://www.google.com/search?q=tkinter+bind+to+when+associated+value+changes&ie=utf-8&oe=utf-8&client=firefox-b-1-ab
 
     def setSaveLoc(self):
         self.saveLoc.set(filedialog.askdirectory(parent=self.frame, initialdir="./img", title="Choose destination"))
