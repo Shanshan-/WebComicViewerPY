@@ -26,8 +26,15 @@ class HintedEntry(Entry):
         self.insert(0, hintTxt)
         self["fg"] = hintColor
 
+    def insert(self, *args):
+        super().insert(*args)
+        if str(args[1]) != self.hintTxt:
+            self["fg"] = self.origFgColor
+
     def focusIn(self, *args):
-        if self['fg'] == self.hintColor:
+        if self.get() != self.hintTxt:
+            self["fg"] = self.origFgColor
+        elif self['fg'] == self.hintColor:
             self.delete("0", "end")
             self["fg"] = self.origFgColor
 

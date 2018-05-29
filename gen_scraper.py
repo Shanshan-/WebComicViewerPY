@@ -37,23 +37,28 @@ class Scraper:
         self.saveLoc = StringVar(value="")
         self.saveLocField = None #these last two used to dynamically update directory entry
         self.comicLoc = ""
+        self.startURLEntry, self.endURLEntry = (None,)*2
 
         #add pre-built profile support
         self.defOption = StringVar(value="None")
-        self.defChoices = ["None", "Code: Game Night", "XKCD", "Friendship is Dragons", "Royal Tutor", "Crystal GMs"]
+        self.defChoices = ["None", "Code: Game Night", "Friendship is Dragons", "Royal Tutor", "Crystal GMs", "XKCD"]
         self.defMenu = OptionMenu(self.frame, self.defOption, *self.defChoices)
+        self.defMenu.grid(row=10, column=7, columnspan=2, sticky="")
         self.defOption.trace('w', self.chooseDefault)
 
         # populate the window
         #TODO: allow for use of pre-built profiles
-        self.create_form()
+        useHinted = True
+        self.create_form_hinted() if useHinted else self.create_form()
 
-    def create_form(self):
+    def create_form_hinted(self):
         #scraping-related fields
         Label(self.frame, text="Start URL").grid(row=1, column=0)
-        HintedEntry(self.frame, hintTxt="Starting URL", textvariable=self.startURL).grid(row=1, column=1, columnspan=3)
+        self.startURLEntry = HintedEntry(self.frame, hintTxt="Starting URL", textvariable=self.startURL)
+        self.startURLEntry.grid(row=1, column=1, columnspan=3)
         Label(self.frame, text="End URL").grid(row=2, column=0)
-        HintedEntry(self.frame, hintTxt="Ending URL", textvariable=self.endURL).grid(row=2, column=1, columnspan=3)
+        self.endURLEntry = HintedEntry(self.frame, hintTxt="Ending URL", textvariable=self.endURL)
+        self.endURLEntry.grid(row=2, column=1, columnspan=3)
 
         Label(self.frame, text="Next Page\nSelector").grid(row=3, column=0)
         Radiobutton(self.frame, text="class(.)", variable=self.nextPageID, value=".", tristatevalue="x").grid(row=3, column=1)
@@ -86,7 +91,62 @@ class Scraper:
         self.filenameStartNum.set(-1)
 
         Label(self.frame, text="Save Location").grid(row=5, column=5)
-        self.saveLocField = HintedEntry(self.frame, hintTxt="\"./img/\" by default", textvariable=self.setSaveLoc)
+        self.saveLocField = HintedEntry(self.frame, hintTxt="\"./img/\" by default", textvariable=self.saveLoc)
+        self.saveLocField.grid(row=5, column=6, columnspan=3)
+        Button(self.frame, text="Choose Directory", command=self.setSaveLoc).grid(row=6, column=6, columnspan=2)
+
+        # set global padding for above items
+        for child in self.frame.winfo_children():
+            child.grid_configure(padx=5, pady=2, sticky="we")
+
+        # other fields and elements
+        title = Label(self.frame, text="Scraper Input", font=('Cooper Black', 24))
+        title.grid(row=0, columnspan=9, padx=10, pady=10, sticky="we")
+        ttk.Separator(self.frame, orient=VERTICAL).grid(row=1, column=4, rowspan=9, sticky="ns", padx=10)
+        cancel = Button(self.frame, text="Cancel", command=self.frame.destroy)
+        cancel.grid(row=10,column=5, padx=10, pady=10, sticky="we")
+        scrape = Button(self.frame, text="Scrape", command=self.start_scrape)
+        scrape.grid(row=10, column=3, padx=10, pady=10, sticky="we", ipadx=10)
+
+    def create_form(self):
+        #scraping-related fields
+        Label(self.frame, text="Start URL").grid(row=1, column=0)
+        Entry(self.frame, textvariable=self.startURL).grid(row=1, column=1, columnspan=3)
+        Label(self.frame, text="End URL").grid(row=2, column=0)
+        Entry(self.frame, textvariable=self.endURL).grid(row=2, column=1, columnspan=3)
+
+        Label(self.frame, text="Next Page\nSelector").grid(row=3, column=0)
+        Radiobutton(self.frame, text="class(.)", variable=self.nextPageID, value=".", tristatevalue="x").grid(row=3, column=1)
+        Radiobutton(self.frame, text="id(#)", variable=self.nextPageID, value="#", tristatevalue="x").grid(row=3, column=2)
+        Radiobutton(self.frame, text="other", variable=self.nextPageID, value="", tristatevalue="x").grid(row=3, column=3)
+        Entry(self.frame, textvariable=self.nextPage).grid(row=4, column=1, columnspan=3)
+        Checkbutton(self.frame, text="URL Prefix:", variable=self.nextPagePreB).grid(row=5, column=1)
+        Entry(self.frame, textvariable=self.nextPagePre).grid(row=5, column=2, columnspan=2)
+
+        Label(self.frame, text="Content\nSelector").grid(row=6, column=0)
+        Radiobutton(self.frame, text="class(.)", variable=self.contentID, value=".", tristatevalue="x").grid(row=6, column=1)
+        Radiobutton(self.frame, text="id(#)", variable=self.contentID, value="#", tristatevalue="x").grid(row=6, column=2)
+        Radiobutton(self.frame, text="other", variable=self.contentID, value="", tristatevalue="x").grid(row=6, column=3)
+        Entry(self.frame, textvariable=self.content).grid(row=7, column=1, columnspan=3)
+        Checkbutton(self.frame, text="URL Prefix:", variable=self.contentPreB).grid(row=8, column=1)
+        Entry(self.frame, textvariable=self.contentPre).grid(row=8, column=2, columnspan=2)
+        Checkbutton(self.frame, text="Multiple Pages", variable=self.multPages).grid(row=9, column=1, columnspan=3)
+
+        # saving-related fields
+        Label(self.frame, text="Page Title\nSelector").grid(row=1, column=5)
+        Radiobutton(self.frame, text="class(.)", variable=self.titleLocID, value=".", tristatevalue="x").grid(row=1, column=6)
+        Radiobutton(self.frame, text="id(#)", variable=self.titleLocID, value="#", tristatevalue="x").grid(row=1, column=7)
+        Radiobutton(self.frame, text="other", variable=self.titleLocID, value="", tristatevalue="x").grid(row=1, column=8)
+        Entry(self.frame, textvariable=self.titleLoc).grid(row=2, column=6, columnspan=3)
+
+        Label(self.frame, text="Filename").grid(row=3, column=5)
+        Entry(self.frame, textvariable=self.comicname).grid(row=3, column=6, columnspan=3)
+        Checkbutton(self.frame, text="Add #", variable=self.filenameNum).grid(row=4, column=6)
+        Entry(self.frame, textvariable=self.filenameStartNum).grid(row=4, column=7, columnspan=2)
+        self.filenameStartNum.set(-1)
+
+        Label(self.frame, text="Save Location").grid(row=5, column=5)
+        self.saveLocField = Entry(self.frame, textvariable=self.setSaveLoc)
         self.saveLocField.grid(row=5, column=6, columnspan=3)
         Button(self.frame, text="Choose Directory", command=self.setSaveLoc).grid(row=6, column=6, columnspan=2)
 
@@ -106,7 +166,7 @@ class Scraper:
     def chooseDefault(self, *args):
         choice = self.defOption.get()
         print(self.startURL.get())
-        if choice == self.defChoices[0]:
+        if choice == self.defChoices[0]: #None option
             self.startURL.set(value="")
             self.endURL.set(value="")
             self.nextPage.set(value="")
@@ -122,9 +182,99 @@ class Scraper:
             self.titleLocID.set(value="")
             self.comicname.set(value="")
             self.filenameNum.set(value=FALSE)
-            self.filenameStartNum.set(value=1)
+            self.filenameStartNum.set(value=-1)
             self.saveLoc.set(value="")
-        elif choice == self.defChoices[1]:
+        elif choice == self.defChoices[1]: #Code Game Night Option
+            self.startURL.set("http://codegamenight.thecomicseries.com/comics/")
+            self.endURL.set("http://codegamenight.thecomicseries.com/comics/")
+            self.nextPage.set('a[rel="next"]')
+            self.nextPageID.set("")
+            self.nextPagePreB.set(TRUE)
+            self.nextPagePre.set("http://codegamenight.thecomicseries.com")
+            self.content.set("#comicimage")
+            self.contentID.set("")
+            self.contentPreB.set(FALSE)
+            self.contentPre.set("")
+            self.multPages.set(FALSE)
+            self.titleLoc.set(".heading")
+            self.titleLocID.set("")
+            self.comicname.set("Code Game Night")
+            self.filenameNum.set(FALSE)
+            self.filenameStartNum.set(-1)
+            self.saveLoc.set("./img/Code Game Night/")
+        elif choice == self.defChoices[2]: #FiD Option
+            self.startURL.set("http://friendshipisdragons.thecomicseries.com/comics/1050")
+            self.endURL.set("http://friendshipisdragons.thecomicseries.com/comics/")
+            self.nextPage.set('a[rel="next"]')
+            self.nextPageID.set("")
+            self.nextPagePreB.set(TRUE)
+            self.nextPagePre.set("http://friendshipisdragons.thecomicseries.com")
+            self.content.set("#comicimage")
+            self.contentID.set("")
+            self.contentPreB.set(FALSE)
+            self.contentPre.set("")
+            self.multPages.set(FALSE)
+            self.titleLoc.set(".heading")
+            self.titleLocID.set("")
+            self.comicname.set("MLP FiD")
+            self.filenameNum.set(FALSE)
+            self.filenameStartNum.set(-1)
+            self.saveLoc.set("./img/MLP FiD/")
+        elif choice == self.defChoices[3]: #Code Game Night Option
+            self.startURL.set("http://codegamenight.thecomicseries.com/comics/")
+            self.endURL.set("http://codegamenight.thecomicseries.com/comics/")
+            self.nextPage.set('a[rel="next"]')
+            self.nextPageID.set("")
+            self.nextPagePreB.set(TRUE)
+            self.nextPagePre.set("http://codegamenight.thecomicseries.com")
+            self.content.set("#comicimage")
+            self.contentID.set("")
+            self.contentPreB.set(FALSE)
+            self.contentPre.set("")
+            self.multPages.set(FALSE)
+            self.titleLoc.set("alt")
+            self.titleLocID.set("")
+            self.comicname.set("Code Game Night")
+            self.filenameNum.set(FALSE)
+            self.filenameStartNum.set(1)
+            self.saveLoc.set("./img/Code Game Night/")
+        elif choice == self.defChoices[4]: #Code Game Night Option
+            self.startURL.set("http://codegamenight.thecomicseries.com/comics/")
+            self.endURL.set("http://codegamenight.thecomicseries.com/comics/")
+            self.nextPage.set('a[rel="next"]')
+            self.nextPageID.set("")
+            self.nextPagePreB.set(TRUE)
+            self.nextPagePre.set("http://codegamenight.thecomicseries.com")
+            self.content.set("#comicimage")
+            self.contentID.set("")
+            self.contentPreB.set(FALSE)
+            self.contentPre.set("")
+            self.multPages.set(FALSE)
+            self.titleLoc.set("alt")
+            self.titleLocID.set("")
+            self.comicname.set("Code Game Night")
+            self.filenameNum.set(FALSE)
+            self.filenameStartNum.set(1)
+            self.saveLoc.set("./img/Code Game Night/")
+        elif choice == self.defChoices[5]: #Code Game Night Option
+            self.startURL.set("http://codegamenight.thecomicseries.com/comics/")
+            self.endURL.set("http://codegamenight.thecomicseries.com/comics/")
+            self.nextPage.set('a[rel="next"]')
+            self.nextPageID.set("")
+            self.nextPagePreB.set(TRUE)
+            self.nextPagePre.set("http://codegamenight.thecomicseries.com")
+            self.content.set("#comicimage")
+            self.contentID.set("")
+            self.contentPreB.set(FALSE)
+            self.contentPre.set("")
+            self.multPages.set(FALSE)
+            self.titleLoc.set("alt")
+            self.titleLocID.set("")
+            self.comicname.set("Code Game Night")
+            self.filenameNum.set(FALSE)
+            self.filenameStartNum.set(1)
+            self.saveLoc.set("./img/Code Game Night/")
+        elif choice == self.defChoices[6]: #Code Game Night Option
             self.startURL.set("http://codegamenight.thecomicseries.com/comics/")
             self.endURL.set("http://codegamenight.thecomicseries.com/comics/")
             self.nextPage.set('a[rel="next"]')
@@ -230,7 +380,10 @@ class ScrapeSettings:
             self.__setattr__(each[:div], each[div+1:])
 
 def gen_scrape(settings):
-    curPage = settings.startnum if settings.startnum >= 0 else ""
+    try:
+        curPage = int(settings.starturl[settings.starturl.rfind("/")+1:])
+    except ValueError:
+        curPage = settings.startnum if settings.startnum >= 0 else ""
     curUrl = settings.starturl
     curUrl += str(curPage) if curUrl.find(str(curPage)) == -1 else ""
     while True:
@@ -238,16 +391,15 @@ def gen_scrape(settings):
         print("Getting %s #%d" % (settings.comicname, curPage))
         res = requests.get(curUrl)
         if res.status_code == 404:
-            print("URL \"%s\" invalid... ending scrape" % curUrl)
-            break
+            raise Exception("URL \"%s\" invalid... ending scrape" % curUrl)
         res.raise_for_status()
         pageSoup = bs4.BeautifulSoup(res.text, "html.parser")
+        pageTitle = pageSoup.select(settings.titlesel)[0].getText()
 
         #extract image url and name
         for indx, imgElem in enumerate(pageSoup.select(settings.imagesel)):
             imgUrl = settings.imagepref + imgElem.get('src')
             imgFormat = imgUrl[imgUrl.rfind("."):]
-            pageTitle = imgElem.get(settings.titlesel)
             if settings.multpages:
                 pageTitle = "Chapter %d Page %d" % (curPage, indx+1)
 
