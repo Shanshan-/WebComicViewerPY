@@ -112,32 +112,37 @@ class Scraper:
             cf = None
         Dialog(self.frame, feedback, dFrame=cf, title="Scrape Results", btnTxt="Close")
 
+# class to pass into a scraper function, and to be populated and used based on function
+# (kinda like a c library struct)
 class ScrapeSettings:
-    def __init__(self):
-        self.startnum = 0
-        self.endnum = 0
-        self.starturl = ""
-        self.imagesel = ""
-        self.imagepref = ""
-        self.titlesel = ""
-        self.comicname = ""
-        self.addnum = False
-        self.fileform = ""
-        self.nextsel = ""
-        self.nextpref = ""
+    def __init__(self, startnum=1, endnum=-1, starturl="", imagesel="", imagepref="", titlesel="",
+                 comicname="", addnum=False, fileform="jpg", nextsel="", nextpref="", saveloc="./img/"):
+        self.startnum = startnum
+        self.endnum = endnum
+        self.starturl = starturl
+        self.imagesel = imagesel
+        self.imagepref = imagepref
+        self.titlesel = titlesel
+        self.comicname = comicname
+        self.addnum = addnum
+        self.fileform = fileform
+        self.nextsel = nextsel
+        self.nextpref = nextpref
+        self.saveloc = saveloc
 
     def setRange(self, start, stop):
         self.startnum = start
         self.endnum = stop
-    def setImage(self, selector, prefix):
+    def setImageSettings(self, selector, prefix):
         self.imagesel = selector
         self.imagepref = prefix
-    def setTitle(self, selector):
+    def setTitleSettings(self, selector):
         self.titleSel = selector
-    def setFile(self, filenameprefix, addnum, format):
+    def setFileSettings(self, filenameprefix, addnum, format, saveloc):
         self.comicname = filenameprefix
         self.addnum = addnum
         self.fileform = format
+        self.saveloc = saveloc
     def setNext(self, selector, prefix):
         self.nextsel = selector
         self.nextpref = prefix
@@ -209,6 +214,36 @@ def scrape_range(start, stop, starturl, imgsel, imgpref, titlesel, comicname, ad
             file.write(chunk)
         file.close()
 
+def scrape_range1(settings):
+    for x in range(settings.startnum, settings.endnum+1):
+        # get the website and create soup
+        print("Getting %s #%d" % (settings.comicname, x))
+        res = requests.get(settings.starturl + str(x))
+        res.raise_for_status()
+        pageSoup = bs4.BeautifulSoup(res.text, "html.parser")
+
+        # extract image url and name
+        imgElem = pageSoup.select(settings.imagesel)[0]
+        imgUrl = settings.imagepref + imgElem.get('src')
+        title = imgElem.get(settings.titlesel)
+
+        # scrape the image
+        res2 = requests.get(imgUrl)
+        res2.raise_for_status()
+
+        # write img to file
+        for char in "\/?:*<>\"|":
+            title = title.replace(char, "_")
+        if settings.addnum:
+            tmp = "%s%s #%d - %s.%s" % (DEFAULTLOC, settings.comicname, x, title, settings.fileform)
+            file = open(tmp, 'wb')
+        else:
+            tmp = "%s%s - %s.%s" % (DEFAULTLOC, settings.comicname, title, settings.fileform)
+            file = open(tmp, 'wb')
+        for chunk in res2.iter_content(100000):
+            file.write(chunk)
+        file.close()
+
 """ Function that takes first page of comic, and scrapes until next page url == current url, and saves all
     Accepts:
         url of the first page (or starting page)
@@ -260,21 +295,80 @@ def scrape_all(starturl, imgsel, imgpref, titlesel, comicname, addnum, fileform,
         cururl = nexturl
         x = x + 1
 
+def scrape_all1(settings):
+    x = 1
+    cururl = settings.starturl
+    while True:
+        # get the website and create soup
+        print("Getting %s #%d" % (settings.comicname, x))
+        res = requests.get(cururl)
+        res.raise_for_status()
+        pageSoup = bs4.BeautifulSoup(res.text, "html.parser")
+
+        # extract image url and name
+        imgElem = pageSoup.select(settings.imagesel)[0]
+        imgUrl = settings.imagepref + imgElem.get('src')
+        title = imgElem.get(settings.titlesel)
+
+        # scrape the image
+        res2 = requests.get(imgUrl)
+        res2.raise_for_status()
+
+        # write img to file
+        for char in "\/?:*<>\"|":
+            title = title.replace(char, "_")
+        if settings.addnum:
+            tmp = "%s%s #%d - %s.%s" % (DEFAULTLOC, settings.comicname, x, title, settings.fileform)
+            file = open(tmp, 'wb')
+        else:
+            tmp = "%s%s - %s.%s" % (DEFAULTLOC, settings.comicname, title, settings.fileform)
+            file = open(tmp, 'wb')
+        for chunk in res2.iter_content(100000):
+            file.write(chunk)
+        file.close()
+
+        # get next page and set cururl
+        if not pageSoup.select(settings.nextsel):
+            break
+        nexturl = settings.nextpref + pageSoup.select(settings.nextsel)[0].get("href")
+        if nexturl == cururl:
+            break
+        cururl = nexturl
+        x = x + 1
+
 """Tests for above functions"""
 if __name__ == "__main__":
-    #scrape_xkcd()
+    origTest = False
+    if origTest:
+        scrape_xkcd(1, 2)
 
-    #Testing for gen_scrape
-    #xkcd = [1, 5, "http://xkcd.com/", "#comic img", "http:", "title", "xkcd", True, "jpg"]
-    #lyoko = [1, 5, "http://codegamenight.thecomicseries.com/comics/", "#comicimage", "", "alt", "Code Game Night", False, "png"]
-    #gems = [1, 5, "http://crystalgms.thecomicseries.com/comics/", "#comicimage", "", "alt", "Crystal GMs", True, "jpg"]
-    #scrape_range(*xkcd)
-    #scrape_range(*lyoko)
-    #scrape_range(*gems)
+        #Testing for gen_scrape
+        xkcd = [1, 5, "http://xkcd.com/", "#comic img", "http:", "title", "xkcd", True, "jpg"]
+        lyoko = [1, 5, "http://codegamenight.thecomicseries.com/comics/", "#comicimage", "", "alt", "Code Game Night", False, "png"]
+        gems = [1, 5, "http://crystalgms.thecomicseries.com/comics/", "#comicimage", "", "alt", "Crystal GMs", True, "jpg"]
+        scrape_range(*xkcd)
+        scrape_range(*lyoko)
+        scrape_range(*gems)
 
-    #Testing for scrape_all
-    #scrape_all("http://codegamenight.thecomicseries.com/comics/first/", "#comicimage", "", "alt", "Code Game Night", False, "png", 'a[rel="next"]', "http://codegamenight.thecomicseries.com")
-    #scrape_all("http://www.misfile.com/?date=2017-08-05", ".comic img", "http://www.misfile.com/", "alt", "Misfile", True, "jpg", ".comic a", "")
+        #Testing for scrape_all
+        scrape_all("http://codegamenight.thecomicseries.com/comics/first/", "#comicimage", "", "alt", "Code Game Night", False, "png", 'a[rel="next"]', "http://codegamenight.thecomicseries.com")
+        scrape_all("http://www.misfile.com/?date=2017-08-05", ".comic img", "http://www.misfile.com/", "alt", "Misfile", True, "jpg", ".comic a", "")
 
     #update currently managed ones
     scrape_all("http://codegamenight.thecomicseries.com/comics/278/", "#comicimage", "", "alt", "Code Game Night", False, "png", 'a[rel="next"]', "http://codegamenight.thecomicseries.com")
+
+    xkcd = ScrapeSettings(startnum=1, endnum=5, starturl="http://xkcd.com/", imagesel="#comic img",
+                          imagepref="http:", titlesel="title", comicname="xkcd", addnum=True)
+    lyoko = ScrapeSettings(startnum=1, endnum=5, starturl="http://codegamenight.thecomicseries.com/comics/",
+                           imagesel="#comicimage", titlesel="alt", comicname="Code Game Night", fileform="png",
+                           nextsel='a[rel="next"]', nextpref="http://codegamenight.thecomicseries.com")
+    gems = ScrapeSettings(startnum=1, endnum=5, starturl="http://crystalgms.thecomicseries.com/comics/",
+                           imagesel="#comicimage", titlesel="alt", comicname="Crystal GMs", addnum=True)
+    misfile = ScrapeSettings(starturl="http://www.misfile.com/?date=2017-08-05", imagesel=".comic img",
+                             imagepref="http://www.misfile.com/", titlesel="alt", comicname="Misfile",
+                             addnum=True, nextsel=".comic a")
+    scrape_range1(xkcd)
+    scrape_range1(lyoko)
+    scrape_range1(gems)
+    scrape_all1(misfile)
+    scrape_all1(lyoko)

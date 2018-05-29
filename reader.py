@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
-from scraper import *
+from gen_scraper import Scraper
 from widgets import *
 from loader import loadFiles
 from PIL import Image, ImageTk
@@ -84,6 +84,8 @@ class Viewer:
         viewOpts = Menu(menuBar, tearoff=0)
         viewOpts.add_command(label="<to be made>", command=NONE, state="disabled")
         viewOpts.add_command(label="Quit", command=rootFrame.destroy)
+        viewOpts.add_command(label="Scroll Pos", command=lambda:print(self.comic_vbar.get()))
+        viewOpts.add_command(label="Set Scroll", command=lambda:print(self.comic_vbar.set(0.5, 1.0)))
 
         # Frame Options
         gotoOpt = Menu(menuBar, tearoff=0)
@@ -255,6 +257,7 @@ if __name__ == "__main__":
     swidth = int(root.winfo_screenwidth() * 0.7)
     root.geometry('%sx%s' % (swidth, sheight))
     root.wm_title("WCV Reader")
+    root.wm_iconbitmap('./img/icon1.ico')
     app = Viewer(root)
 
     # start program and open window

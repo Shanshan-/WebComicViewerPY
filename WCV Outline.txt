@@ -16,6 +16,11 @@ WCV Outline and parts needed:
 	- save settings for a particular comic, and pull back up later (eg. use .swcv files?)
 	- have it take in an object (like a c struct)
 	(-) options for metadata info
+	- constraints
+	    - if no nextsel, must have either endnum/endURL
+	    -
+	    - must have startURL, imgsel
+	    - warn if no comicname, if endnum!= -1 && < startnum, and if no startnum
 - Loader
 	- current does load desired filenames, but to single list
 		- edit: try checking the 307 grading files for this code snippet
@@ -54,12 +59,22 @@ WCV Outline and parts needed:
         $$
 
 Useful links:
-- tkinter guide: http://effbot.org/tkinterbook/tkinter-classes.htm
-- free icons: https://www.flaticon.com/packs/universal-icons-2
-- tkinter colors: http://www.science.smith.edu/dftwiki/index.php/Color_Charts_for_TKinter
-- tkinter winfo: https://www.tcl.tk/man/tcl8.4/TkCmd/winfo.htm#M48
-- comic page: https://stackoverflow.com/questions/29319445/tkinter-how-to-get-frame-in-canvas-window-to-expand-to-the-size-of-the-canvas
-- comic canvas frame width: https://stackoverflow.com/questions/29319445/tkinter-how-to-get-frame-in-canvas-window-to-expand-to-the-size-of-the-canvas
-- tkinter events: http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm
-- scrolling: https://stackoverflow.com/questions/17355902/python-tkinter-binding-mousewheel-to-scrollbar
-- exe generator: https://stackoverflow.com/questions/12059509/create-a-single-executable-from-a-python-project/12059644#12059644 (PyInstaller)
+    - tkinter guide: http://effbot.org/tkinterbook/tkinter-classes.htm
+    - free icons: https://www.flaticon.com/packs/universal-icons-2
+    - tkinter colors: http://www.science.smith.edu/dftwiki/index.php/Color_Charts_for_TKinter
+    - tkinter winfo: https://www.tcl.tk/man/tcl8.4/TkCmd/winfo.htm#M48
+    - comic page: https://stackoverflow.com/questions/29319445/tkinter-how-to-get-frame-in-canvas-window-to-expand-to-the-size-of-the-canvas
+    - comic canvas frame width: https://stackoverflow.com/questions/29319445/tkinter-how-to-get-frame-in-canvas-window-to-expand-to-the-size-of-the-canvas
+    - tkinter events: http://effbot.org/tkinterbook/tkinter-events-and-bindings.htm
+    - scrolling: https://stackoverflow.com/questions/17355902/python-tkinter-binding-mousewheel-to-scrollbar
+    - exe generator: https://stackoverflow.com/questions/12059509/create-a-single-executable-from-a-python-project/12059644#12059644 (PyInstaller)
+    - general tkinter widgets: https://dzone.com/articles/python-gui-examples-tkinter-tutorial-like-geeks
+
+python try except
+arraylist java
+https://medium.com/@avery_1242/my-experience-with-google-foobar-tips-for-tackling-googles-legendary-coding-challenge-dbc20a054e4e
+
+- potential color schemes:
+    https://www.sessions.edu/color-calculator-results/?colors=398fff,ffeff1,e194ff
+    https://www.sessions.edu/color-calculator-results/?colors=398fff,ffeff1,fff8ef,39ffe8
+    https://www.sessions.edu/color-calculator-results/?colors=398fff,ffeff1,6299e6

@@ -1,3 +1,5 @@
 /img/*
 testcode.py
 wcv.config
+!/img/icon*
+!/img/xkcd #3 - Hello, island.jpg
