@@ -16,11 +16,12 @@ WCV Outline and parts needed:
 	- save settings for a particular comic, and pull back up later (eg. use .swcv files?)
 	- have it take in an object (like a c struct)
 	(-) options for metadata info
-	- constraints
+	- constraint checking at some point
 	    - if no nextsel, must have either endnum/endURL
-	    -
+	    - if no titlesel, must be multpages (potentially add another field for this check)
 	    - must have startURL, imgsel
 	    - warn if no comicname, if endnum!= -1 && < startnum, and if no startnum
+	- allow for adding additional profiles within app itself
 - Loader
 	- current does load desired filenames, but to single list
 		- edit: try checking the 307 grading files for this code snippet
