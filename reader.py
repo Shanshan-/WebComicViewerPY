@@ -7,6 +7,7 @@ from loader import loadFiles
 from PIL import Image, ImageTk
 from copy import deepcopy
 from os.path import relpath
+import codecs
 
 # recent comic constants
 NORECENT = "<no recent files>"
@@ -16,6 +17,8 @@ RECENTLIMIT = 10
 SAVEPATH = "wcv.config"
 SAVECATDIV = "$$\n"
 SAVELINEDIV = "|"
+FILE_ENC = 'base64'
+STR_ENC = 'utf8'
 
 # comic frame constants
 EFRAME = 0
@@ -232,8 +235,11 @@ def loadSave():
         if line == SAVECATDIV:
             section += 1
             continue
-        line = line.strip()
-        tmp = line.split(SAVELINEDIV)
+        rline1 = codecs.encode(line, STR_ENC, 'strict')
+        rline2 = codecs.decode(rline1, FILE_ENC, 'strict')
+        rline3 = codecs.decode(rline2, STR_ENC, 'strict')
+        rline = rline3.strip()
+        tmp = rline.split(SAVELINEDIV)
         if section == 0: #favorites
             if not exists(tmp[1]):
                 print("The favorite comic %s at \"%s\" does not exists. Removing..." % (tmp[0], tmp[1]))
@@ -246,7 +252,11 @@ def makeSave():
     f = open(SAVEPATH, "w")
     f.write(SAVECATDIV)
     for each in FavList:
-        f.write(each[0] + SAVELINEDIV + each[1] + "\n")
+        fline0 = each[0] + SAVELINEDIV + each[1]
+        fline1 = codecs.encode(fline0, STR_ENC, 'strict')
+        fline2 = codecs.encode(fline1, FILE_ENC, 'strict')
+        fline3 = codecs.decode(fline2, STR_ENC, 'strict')
+        f.write(fline3)
     f.write(SAVECATDIV)
     f.close()
 
