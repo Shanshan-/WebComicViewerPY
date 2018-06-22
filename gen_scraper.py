@@ -102,6 +102,7 @@ class Scraper:
         scrape = Button(self.frame, text="Scrape", command=self.start_scrape)
         scrape.grid(row=7, column=3, padx=10, pady=10, sticky="we", ipadx=10)
         self.defMenu.grid(row=7, column=7, columnspan=2, sticky="e")
+        Label(self.frame, text='NOTE: "#" for id, "." for class').grid(row=7, column=0, columnspan=2)
 
     def chooseDefault(self, *args):
         choice = self.defOption.get()

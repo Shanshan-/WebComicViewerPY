@@ -22,6 +22,7 @@ WCV Outline and parts needed:
 	    - must have startURL, imgsel
 	    - warn if no comicname, if endnum!= -1 && < startnum, and if no startnum
 	- allow for adding additional profiles within app itself
+	- to increase complexity, multi-thread it, complete with status screen, etc.
 - Loader
 	- current does load desired filenames, but to single list
 		- edit: try checking the 307 grading files for this code snippet
