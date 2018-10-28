@@ -40,7 +40,7 @@ class Scraper:
 
         #add pre-built profile support
         self.defOption = StringVar(value="None")
-        self.defChoices = ["None", "Code: Game Night", "Friendship is Dragons", "Royal Tutor", "Crystal GMs", "XKCD"]
+        self.defChoices = ["None", "Code: Game Night", "Friendship is Dragons", "Royal Tutor", "Crystal GMs", "XKCD", "Akagami"]
         self.defMenu = OptionMenu(self.frame, self.defOption, *self.defChoices)
         #self.defMenu['menu'].entryconfig("XKCD", state="disabled")
         self.defOption.trace('w', self.chooseDefault)
@@ -209,6 +209,23 @@ class Scraper:
             self.comicname.set(value="XKCD")
             self.filenameNum.set(value=TRUE)
             self.saveLoc.set(value="./img/XKCD/")
+        elif choice == self.defChoices[6]: # Akagami
+            self.baseURL.set("http://mangaseeonline.us/read-online/Akagami-No-Shirayukihime-chapter-")
+            self.pageStartNum.set(value=100)
+            self.pageEndNum.set(value=-1)
+            self.nextPage.set("")
+            self.nextPagePreB.set(FALSE)
+            self.nextPagePre.set("")
+            self.content.set(".fullchapimage img")
+            self.contentPreB.set(FALSE)
+            self.contentPre.set("")
+            self.multPages.set(TRUE)
+            self.titleLoc.set("")
+            self.titleLocB.set(value=FALSE)
+            self.titleLocAttr.set(value="")
+            self.comicname.set("Akagami no Shirayukihime")
+            self.filenameNum.set(FALSE)
+            self.saveLoc.set("./img/Akagami no Shirayukihime/")
         Tk.update(self.master)
         print(self.baseURL.get())
         #TODO: HintedEntries should update text, not hint text
@@ -363,7 +380,7 @@ def gen_scrape(settings):
 
         # get next page and set curUrl
         if not settings.nextsel: #must build nexturl from cururl (eg. for heine)
-            nexturl = settings.starturl + str(curPage + 1)
+            nexturl = settings.baseurl + str(curPage + 1)
         else:
             try:
                 nextElem = pageSoup.select(settings.nextsel)
