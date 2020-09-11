@@ -71,6 +71,7 @@ Useful links:
     - scrolling: https://stackoverflow.com/questions/17355902/python-tkinter-binding-mousewheel-to-scrollbar
     - exe generator: https://stackoverflow.com/questions/12059509/create-a-single-executable-from-a-python-project/12059644#12059644 (PyInstaller)
     - general tkinter widgets: https://dzone.com/articles/python-gui-examples-tkinter-tutorial-like-geeks
+    - filenames: https://stackoverflow.com/questions/678236/how-to-get-the-filename-without-the-extension-from-a-path-in-python
 
 python try except
 arraylist java

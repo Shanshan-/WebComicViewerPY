@@ -40,7 +40,8 @@ class Scraper:
 
         #add pre-built profile support
         self.defOption = StringVar(value="None")
-        self.defChoices = ["None", "Code: Game Night", "Friendship is Dragons", "Royal Tutor", "Crystal GMs", "XKCD", "Akagami"]
+        self.defChoices = ["None", "Code: Game Night", "Friendship is Dragons", "Royal Tutor", "Crystal GMs", "XKCD",
+                           "Akagami", "Serpamia Flare"]
         self.defMenu = OptionMenu(self.frame, self.defOption, *self.defChoices)
         #self.defMenu['menu'].entryconfig("XKCD", state="disabled")
         self.defOption.trace('w', self.chooseDefault)
@@ -107,6 +108,7 @@ class Scraper:
     def chooseDefault(self, *args):
         choice = self.defOption.get()
         print(self.baseURL.get())
+        #TODO: JSON this like the projects tab on website
         if choice == self.defChoices[0]: #None option
             self.baseURL.set(value="")
             self.pageStartNum.set(value=1)
@@ -132,8 +134,8 @@ class Scraper:
             self.nextPagePreB.set(TRUE)
             self.nextPagePre.set("http://codegamenight.thecomicseries.com")
             self.content.set("#comicimage")
-            self.contentPreB.set(FALSE)
-            self.contentPre.set("")
+            self.contentPreB.set(TRUE)
+            self.contentPre.set("http://codegamenight.thecomicseries.com")
             self.multPages.set(FALSE)
             self.titleLoc.set(".heading")
             self.titleLocB.set(value=TRUE)
@@ -143,14 +145,14 @@ class Scraper:
             self.saveLoc.set("./img/Code Game Night/")
         elif choice == self.defChoices[2]: #MLP FiD Option
             self.baseURL.set("http://friendshipisdragons.thecomicseries.com/comics/")
-            self.pageStartNum.set(value=1050)
+            self.pageStartNum.set(value=1428)
             self.pageEndNum.set(value=-1)
             self.nextPage.set('a[rel="next"]')
             self.nextPagePreB.set(TRUE)
             self.nextPagePre.set("http://friendshipisdragons.thecomicseries.com")
             self.content.set("#comicimage")
-            self.contentPreB.set(FALSE)
-            self.contentPre.set("")
+            self.contentPreB.set(TRUE)
+            self.contentPre.set("http://friendshipisdragons.thecomicseries.com")
             self.multPages.set(FALSE)
             self.titleLoc.set(".heading")
             self.titleLocB.set(value=TRUE)
@@ -183,8 +185,8 @@ class Scraper:
             self.nextPagePreB.set(TRUE)
             self.nextPagePre.set("http://crystalgms.thecomicseries.com")
             self.content.set("#comicimage")
-            self.contentPreB.set(FALSE)
-            self.contentPre.set("")
+            self.contentPreB.set(TRUE)
+            self.contentPre.set("http://crystalgms.thecomicseries.com")
             self.multPages.set(FALSE)
             self.titleLoc.set(".comicimage img")
             self.titleLocB.set(value=FALSE)
@@ -226,6 +228,24 @@ class Scraper:
             self.comicname.set("Akagami no Shirayukihime")
             self.filenameNum.set(FALSE)
             self.saveLoc.set("./img/Akagami no Shirayukihime/")
+        elif choice == self.defChoices[7]: #Serpamia Flare
+            self.baseURL.set("http://serpamiaflare.com/comics/")
+            self.pageStartNum.set(value=405)
+            self.pageEndNum.set(value=-1)
+            self.nextPage.set('a[rel="next"]')
+            self.nextPagePreB.set(TRUE)
+            self.nextPagePre.set("http://serpamiaflare.com")
+            self.content.set("#comicimage")
+            self.contentPreB.set(TRUE)
+            self.contentPre.set("http://serpamiaflare.com")
+            self.multPages.set(FALSE)
+            self.titleLoc.set(".heading")
+            self.titleLocB.set(value=TRUE)
+            self.titleLocAttr.set(value="")
+            self.comicname.set("Serpamia Flare")
+            self.filenameNum.set(FALSE)
+            self.saveLoc.set("./img/Serpamia Flare/")
+        #TODO: look into selecting BS elements based on innerHTML contents, and  not just attribute values
         Tk.update(self.master)
         print(self.baseURL.get())
         #TODO: HintedEntries should update text, not hint text
