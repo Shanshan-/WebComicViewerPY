@@ -73,10 +73,6 @@ Useful links:
     - general tkinter widgets: https://dzone.com/articles/python-gui-examples-tkinter-tutorial-like-geeks
     - filenames: https://stackoverflow.com/questions/678236/how-to-get-the-filename-without-the-extension-from-a-path-in-python
 
-python try except
-arraylist java
-https://medium.com/@avery_1242/my-experience-with-google-foobar-tips-for-tackling-googles-legendary-coding-challenge-dbc20a054e4e
-
 - potential color schemes:
     https://www.sessions.edu/color-calculator-results/?colors=398fff,ffeff1,e194ff
     https://www.sessions.edu/color-calculator-results/?colors=398fff,ffeff1,fff8ef,39ffe8
