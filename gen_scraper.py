@@ -49,6 +49,7 @@ class Scraper:
 
         # populate the window
         useHinted = True
+        self.titleAttrField = None
         self.create_form_hinted() if useHinted else None
 
     def create_form_hinted(self):
@@ -80,10 +81,17 @@ class Scraper:
         # Page Title Selectors
         Label(self.frame, text="Page Title\nSelector").grid(row=3, column=5)
         HintedEntry(self.frame, hintTxt="CSS selector for page title", textvariable=self.titleLoc).grid(row=3, column=6, columnspan=3)
-        Radiobutton(self.frame, text="In Text", variable=self.titleLocB, value=TRUE, tristatevalue="x").grid(row=4, column=6)
-        Radiobutton(self.frame, text="In Attr", variable=self.titleLocB, value=FALSE, tristatevalue="x").grid(row=4, column=7)
-        HintedEntry(self.frame, hintTxt="CSS Atribute", textvariable=self.titleLocAttr).grid(row=4, column=8)
-        #TODO: above entry should be disabled when self.titleLocB is TRUE
+        self.titleAttrField = HintedEntry(self.frame, hintTxt="CSS Atribute", textvariable=self.titleLocAttr, state=DISABLED)
+        self.titleAttrField.grid(row=4, column=8)
+
+        def activateField():
+            self.titleAttrField.config(state=NORMAL)
+
+        def deactivateField():
+            self.titleAttrField.config(state=DISABLED)
+
+        Radiobutton(self.frame, text="In Text", variable=self.titleLocB, value=TRUE, tristatevalue="x", command=deactivateField).grid(row=4, column=6)
+        Radiobutton(self.frame, text="In Attr:", variable=self.titleLocB, value=FALSE, tristatevalue="x", command=activateField).grid(row=4, column=7)
 
         # Save Location Details
         Label(self.frame, text="Save Location").grid(row=5, column=5)
