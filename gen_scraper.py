@@ -38,6 +38,7 @@ class Scraper:
         self.comicLoc = "" #used to store location of scraped comic, potentially for use in reader
         self.baseURLEntry = (None,)
         self.defaultData = defaultJson.get("comicSettings")
+        self.template = ""
 
         #add pre-built profile support
         self.defOption = StringVar(value="None")
@@ -125,6 +126,7 @@ class Scraper:
         self.comicname.set(value=choice["comicName"])
         self.filenameNum.set(value=choice["filenameNum"])
         self.saveLoc.set(value=choice["saveLoc"])
+        self.template = choice["template"]
         #TODO: look into selecting BS elements based on innerHTML contents, and  not just attribute values
         Tk.update(self.master)
         print(self.baseURL.get())
@@ -155,6 +157,8 @@ class Scraper:
         # Try to scrape, and provide feedback
         #TODO: scrape first image, then prompt user for confirmation
         try:
+            if self.template == "MangaSee" or self.baseURL.get().find("mangasee123.com") >= 0:
+                raise Exception("MangaSee websites are currently not supported")
             gen_scrape(args)
             feedback = "Scrape Successful"
             cf = self.frame
