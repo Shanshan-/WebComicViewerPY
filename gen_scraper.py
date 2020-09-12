@@ -6,7 +6,7 @@ from tkinter import *
 DEFAULTLOC = "./img/"
 
 class Scraper:
-    def __init__(self, master, nested=True):
+    def __init__(self, master, defaultJson, nested=True):
         # create the window, and set base properties
         self.frame = master
         self.master = master
@@ -37,11 +37,11 @@ class Scraper:
         self.saveLocField = None #used to dynamically update directory entry
         self.comicLoc = "" #used to store location of scraped comic, potentially for use in reader
         self.baseURLEntry = (None,)
+        self.defaultData = defaultJson.get("comicSettings")
 
         #add pre-built profile support
         self.defOption = StringVar(value="None")
-        self.defChoices = ["None", "Code: Game Night", "Friendship is Dragons", "Royal Tutor", "Crystal GMs", "XKCD",
-                           "Akagami", "Serpamia Flare"]
+        self.defChoices = [x["name"] for x in self.defaultData]
         self.defMenu = OptionMenu(self.frame, self.defOption, *self.defChoices)
         #self.defMenu['menu'].entryconfig("XKCD", state="disabled")
         self.defOption.trace('w', self.chooseDefault)
@@ -107,144 +107,24 @@ class Scraper:
 
     def chooseDefault(self, *args):
         choice = self.defOption.get()
+        choice = [x for x in self.defaultData if x["name"] == choice][0]
         print(self.baseURL.get())
-        #TODO: JSON this like the projects tab on website
-        if choice == self.defChoices[0]: #None option
-            self.baseURL.set(value="")
-            self.pageStartNum.set(value=1)
-            self.pageEndNum.set(value=-1)
-            self.nextPage.set(value="")
-            self.nextPagePreB.set(value=FALSE)
-            self.nextPagePre.set(value="")
-            self.content.set(value="")
-            self.contentPreB.set(value=FALSE)
-            self.contentPre.set(value="")
-            self.multPages.set(value=FALSE)
-            self.titleLoc.set(value="")
-            self.titleLocB.set(value=TRUE)
-            self.titleLocAttr.set(value="")
-            self.comicname.set(value="")
-            self.filenameNum.set(value=FALSE)
-            self.saveLoc.set(value="")
-        elif choice == self.defChoices[1]: #Code Game Night Option
-            self.baseURL.set("http://codegamenight.thecomicseries.com/comics/")
-            self.pageStartNum.set(value=447)
-            self.pageEndNum.set(value=-1)
-            self.nextPage.set('a[rel="next"]')
-            self.nextPagePreB.set(TRUE)
-            self.nextPagePre.set("http://codegamenight.thecomicseries.com")
-            self.content.set("#comicimage")
-            self.contentPreB.set(TRUE)
-            self.contentPre.set("http://codegamenight.thecomicseries.com")
-            self.multPages.set(FALSE)
-            self.titleLoc.set(".heading")
-            self.titleLocB.set(value=TRUE)
-            self.titleLocAttr.set(value="")
-            self.comicname.set("Code Game Night")
-            self.filenameNum.set(FALSE)
-            self.saveLoc.set("./img/Code Game Night/")
-        elif choice == self.defChoices[2]: #MLP FiD Option
-            self.baseURL.set("http://friendshipisdragons.thecomicseries.com/comics/")
-            self.pageStartNum.set(value=1428)
-            self.pageEndNum.set(value=-1)
-            self.nextPage.set('a[rel="next"]')
-            self.nextPagePreB.set(TRUE)
-            self.nextPagePre.set("http://friendshipisdragons.thecomicseries.com")
-            self.content.set("#comicimage")
-            self.contentPreB.set(TRUE)
-            self.contentPre.set("http://friendshipisdragons.thecomicseries.com")
-            self.multPages.set(FALSE)
-            self.titleLoc.set(".heading")
-            self.titleLocB.set(value=TRUE)
-            self.titleLocAttr.set(value="")
-            self.comicname.set("MLP FiD")
-            self.filenameNum.set(FALSE)
-            self.saveLoc.set("./img/MLP FiD/")
-        elif choice == self.defChoices[3]: #Royal Tutor Option
-            self.baseURL.set("http://mangaseeonline.us/read-online/The-Royal-Tutor-chapter-")
-            self.pageStartNum.set(value=59)
-            self.pageEndNum.set(value=-1)
-            self.nextPage.set("")
-            self.nextPagePreB.set(FALSE)
-            self.nextPagePre.set("")
-            self.content.set(".fullchapimage img")
-            self.contentPreB.set(FALSE)
-            self.contentPre.set("")
-            self.multPages.set(TRUE)
-            self.titleLoc.set("")
-            self.titleLocB.set(value=FALSE)
-            self.titleLocAttr.set(value="")
-            self.comicname.set("Royal Tutor Heine")
-            self.filenameNum.set(FALSE)
-            self.saveLoc.set("./img/Royal Tutor/")
-        elif choice == self.defChoices[4]: #Crystal GMs Option
-            self.baseURL.set("http://crystalgms.thecomicseries.com/comics/")
-            self.pageStartNum.set(value=110)
-            self.pageEndNum.set(value=115)
-            self.nextPage.set('a[rel="next"]')
-            self.nextPagePreB.set(TRUE)
-            self.nextPagePre.set("http://crystalgms.thecomicseries.com")
-            self.content.set("#comicimage")
-            self.contentPreB.set(TRUE)
-            self.contentPre.set("http://crystalgms.thecomicseries.com")
-            self.multPages.set(FALSE)
-            self.titleLoc.set(".comicimage img")
-            self.titleLocB.set(value=FALSE)
-            self.titleLocAttr.set(value="alt")
-            self.comicname.set("Crystal GMs")
-            self.filenameNum.set(TRUE)
-            self.saveLoc.set("./img/Crystal GMs/")
-        elif choice == self.defChoices[5]: #XKCD option
-            self.baseURL.set(value="https://xkcd.com/")
-            self.pageStartNum.set(value=1990)
-            self.pageEndNum.set(value=-1)
-            self.nextPage.set(value='a[rel="next"]')
-            self.nextPagePreB.set(value=TRUE)
-            self.nextPagePre.set(value="https://xkcd.com")
-            self.content.set(value="#comic img")
-            self.contentPreB.set(value=TRUE)
-            self.contentPre.set(value="http:")
-            self.multPages.set(value=FALSE)
-            self.titleLoc.set(value="#ctitle")
-            self.titleLocB.set(value=TRUE)
-            self.titleLocAttr.set(value="")
-            self.comicname.set(value="XKCD")
-            self.filenameNum.set(value=TRUE)
-            self.saveLoc.set(value="./img/XKCD/")
-        elif choice == self.defChoices[6]: # Akagami
-            self.baseURL.set("http://mangaseeonline.us/read-online/Akagami-No-Shirayukihime-chapter-")
-            self.pageStartNum.set(value=100)
-            self.pageEndNum.set(value=-1)
-            self.nextPage.set("")
-            self.nextPagePreB.set(FALSE)
-            self.nextPagePre.set("")
-            self.content.set(".fullchapimage img")
-            self.contentPreB.set(FALSE)
-            self.contentPre.set("")
-            self.multPages.set(TRUE)
-            self.titleLoc.set("")
-            self.titleLocB.set(value=FALSE)
-            self.titleLocAttr.set(value="")
-            self.comicname.set("Akagami no Shirayukihime")
-            self.filenameNum.set(FALSE)
-            self.saveLoc.set("./img/Akagami no Shirayukihime/")
-        elif choice == self.defChoices[7]: #Serpamia Flare
-            self.baseURL.set("http://serpamiaflare.com/comics/")
-            self.pageStartNum.set(value=405)
-            self.pageEndNum.set(value=-1)
-            self.nextPage.set('a[rel="next"]')
-            self.nextPagePreB.set(TRUE)
-            self.nextPagePre.set("http://serpamiaflare.com")
-            self.content.set("#comicimage")
-            self.contentPreB.set(TRUE)
-            self.contentPre.set("http://serpamiaflare.com")
-            self.multPages.set(FALSE)
-            self.titleLoc.set(".heading")
-            self.titleLocB.set(value=TRUE)
-            self.titleLocAttr.set(value="")
-            self.comicname.set("Serpamia Flare")
-            self.filenameNum.set(FALSE)
-            self.saveLoc.set("./img/Serpamia Flare/")
+        self.baseURL.set(value=choice["baseURL"])
+        self.pageStartNum.set(value=choice["startNum"])
+        self.pageEndNum.set(value=choice["endNum"])
+        self.nextPage.set(value=choice["nextSelector"])
+        self.nextPagePreB.set(value=TRUE) if choice["nextPrefix"] else self.nextPagePreB.set(value=FALSE)
+        self.nextPagePre.set(value=choice["nextPrefix"])
+        self.content.set(value=choice["contentSelector"])
+        self.contentPreB.set(value=TRUE) if choice["contentPrefix"] else self.contentPreB.set(value=FALSE)
+        self.contentPre.set(value=choice["contentPrefix"])
+        self.multPages.set(value=choice["multPages"])
+        self.titleLoc.set(value=choice["titleSelector"])
+        self.titleLocB.set(value=choice["titleLocationB"])
+        self.titleLocAttr.set(value=choice["titleAttributeVal"])
+        self.comicname.set(value=choice["comicName"])
+        self.filenameNum.set(value=choice["filenameNum"])
+        self.saveLoc.set(value=choice["saveLoc"])
         #TODO: look into selecting BS elements based on innerHTML contents, and  not just attribute values
         Tk.update(self.master)
         print(self.baseURL.get())
@@ -421,7 +301,9 @@ if __name__ == "__main__":
     if len(sys.argv) == 1:
         # create the root window which will hold all objects
         root = Tk()
-        app = Scraper(root, nested=False)
+        defaultFile = open("./defaults.json")
+        defaults = json.load(defaultFile)
+        app = Scraper(root, defaults, nested=False)
 
         # start program and open window
         root.mainloop()
@@ -431,6 +313,7 @@ if __name__ == "__main__":
             pass
         except Exception as e:
             print("Error occurred: %s" % e)
+        defaultFile.close()
     elif "-t" in sys.argv:
         lyoko = ScrapeSettings(startnum=100, endnum=120, baseurl="http://codegamenight.thecomicseries.com/comics/",
                                imagesel="#comicimage", pagetitlesel="alt", comicname="Code Game Night",
