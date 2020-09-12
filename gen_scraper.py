@@ -1,4 +1,4 @@
-import requests, bs4, os
+import requests, bs4, os, json
 from tkinter import ttk, filedialog
 from widgets import *
 from tkinter import *
@@ -128,7 +128,7 @@ class Scraper:
             self.saveLoc.set(value="")
         elif choice == self.defChoices[1]: #Code Game Night Option
             self.baseURL.set("http://codegamenight.thecomicseries.com/comics/")
-            self.pageStartNum.set(value=283)
+            self.pageStartNum.set(value=447)
             self.pageEndNum.set(value=-1)
             self.nextPage.set('a[rel="next"]')
             self.nextPagePreB.set(TRUE)
@@ -273,6 +273,7 @@ class Scraper:
         args.saveloc = self.saveLoc.get()
 
         # Try to scrape, and provide feedback
+        #TODO: scrape first image, then prompt user for confirmation
         try:
             gen_scrape(args)
             feedback = "Scrape Successful"
