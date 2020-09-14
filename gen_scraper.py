@@ -6,10 +6,11 @@ from tkinter import *
 DEFAULTLOC = "./img/"
 
 class Scraper:
-    def __init__(self, master, defaultJson, nested=True):
+    def __init__(self, master, defaultJson=None, nested=True):
         # create the window, and set base properties
         self.frame = master
         self.master = master
+        self.nested = nested
         if nested:
             self.frame = Toplevel(master)
             self.frame.grab_set()
@@ -37,7 +38,10 @@ class Scraper:
         self.saveLocField = None #used to dynamically update directory entry
         self.comicLoc = "" #used to store location of scraped comic, potentially for use in reader
         self.baseURLEntry = (None,)
-        self.defaultData = defaultJson.get("comicSettings")
+        try:
+            self.defaultData = defaultJson.get("comicSettings")
+        except:
+            self.defaultData = json.load(open("./defaults.json")).get("comicSettings")
         self.template = ""
 
         #add pre-built profile support
@@ -51,6 +55,7 @@ class Scraper:
         useHinted = True
         self.titleAttrField = None
         self.create_form_hinted() if useHinted else None
+        self.frame.bind("<Return>", self.start_scrape)
 
     def create_form_hinted(self):
         #URL starting and stopping points
@@ -107,7 +112,10 @@ class Scraper:
         title = Label(self.frame, text="Scraper Input", font=('Cooper Black', 24)) #large title
         title.grid(row=0, columnspan=9, padx=10, pady=10, sticky="we")
         ttk.Separator(self.frame, orient=VERTICAL).grid(row=2, column=4, rowspan=5, sticky="ns", padx=10, pady=5) #middle line
-        cancel = Button(self.frame, text="Cancel", command=self.frame.destroy)
+        if self.nested:
+            cancel = Button(self.frame, text="Cancel", command=self.frame.destroy)
+        else:
+            cancel = Button(self.frame, text="Close", command=self.frame.destroy)
         cancel.grid(row=7,column=5, padx=10, pady=10, sticky="we")
         scrape = Button(self.frame, text="Scrape", command=self.start_scrape)
         scrape.grid(row=7, column=3, padx=10, pady=10, sticky="we", ipadx=10)
@@ -135,7 +143,7 @@ class Scraper:
         self.filenameNum.set(value=choice["filenameNum"])
         self.saveLoc.set(value=choice["saveLoc"])
         self.template = choice["template"]
-        #TODO: look into selecting BS elements based on innerHTML contents, and  not just attribute values
+        #TODO: look into selecting BS elements based on innerHTML contents, and not just attribute values
         Tk.update(self.master)
         print(self.baseURL.get())
         #TODO: HintedEntries should update text, not hint text
@@ -145,11 +153,11 @@ class Scraper:
         self.saveLoc.set(filedialog.askdirectory(parent=self.frame, initialdir="./img", title="Choose destination"))
         self.saveLocField.insert(END, self.saveLoc.get())
 
-    def start_scrape(self):
+    def start_scrape(self, event=None):
         args = ScrapeSettings()
         args.baseurl = self.baseURL.get()
         args.startnum = self.pageStartNum.get()
-        args.endnum = self.pageEndNum.get()
+        args.endnum = args.startnum #self.pageEndNum.get()
         args.nextsel = self.nextPage.get()
         args.nextpref = self.nextPagePre.get() if self.nextPagePreB.get() else ""
         args.imagesel = self.content.get()
@@ -163,11 +171,19 @@ class Scraper:
         args.saveloc = self.saveLoc.get()
 
         # Try to scrape, and provide feedback
-        #TODO: scrape first image, then prompt user for confirmation
         try:
             if self.template == "MangaSee" or self.baseURL.get().find("mangasee123.com") >= 0:
                 raise Exception("MangaSee websites are currently not supported")
-            gen_scrape(args)
+            testImg = gen_scrape(args)
+            isCorrectImg = ImageDialog(self.frame, testImg, title="Checking First Image").show()
+            if isCorrectImg:
+                args.startnum += 1
+                args.endnum = self.pageEndNum.get()
+                #TODO: weigh pros and cons of having this run in a separate thread
+                gen_scrape(args)
+            else:
+                os.remove(testImg) if os.path.exists(testImg) else None
+                raise Exception("Scrape cancelled by user")
             feedback = "Scrape Successful"
             cf = self.frame
         except Exception as scrape_error:
@@ -238,6 +254,7 @@ def gen_scrape(settings):
             raise Exception("The indicated save directory does not exist, and could not be created")
     curPage = settings.startnum
     curUrl = settings.baseurl + str(curPage)
+    name = None
 
     #begin scraping
     while True:
@@ -308,6 +325,7 @@ def gen_scrape(settings):
         curPage = curPage + 1
         if curPage == settings.endnum+1:
             break
+    return name
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
